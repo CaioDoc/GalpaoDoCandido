@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html class="light" lang="pt-br">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Galpão do Cândido | Móveis de Design &amp; Antiguidades</title>
+  <meta name="description"
+    content="Catálogo exclusivo de móveis de design e antiguidades selecionadas. Galpão do Cândido." />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+    rel="stylesheet" />
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#f48c25",
+            "background-light": "#ffffff",
+            "background-dark": "#f8f9fa",
+          },
+          fontFamily: { "display": ["Manrope", "sans-serif"] },
+          borderRadius: { "DEFAULT": "0.5rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+        },
+      },
+    }
+  </script>
+  <style>
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* Drawer transitions */
+    #product-drawer-backdrop,
+    #cart-drawer-backdrop {
+      transition: opacity 0.3s ease;
+    }
+
+    #product-drawer-panel,
+    #cart-drawer-panel {
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .skeleton {
+      animation: skeleton-shimmer 1.5s infinite;
+    }
+
+    @keyframes skeleton-shimmer {
+      0% {
+        background-position: 200% 0;
+      }
+
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+    @keyframes scroll-title {
+
+      0%,
+      15% {
+        transform: translateX(0);
+      }
+
+      85%,
+      100% {
+        transform: translateX(var(--scroll-dist, 0px));
+      }
+    }
+
+    .card-title-wrapper {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .card-title-inner {
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .card-title-wrapper.scrolling {
+      text-overflow: clip;
+    }
+
+    .card-title-wrapper.scrolling .card-title-inner {
+      animation: scroll-title 3s ease-in-out infinite alternate;
+    }
+  </style>
+</head>
+
+<body class="bg-background-light font-display text-slate-900 antialiased">
+  <div class="relative flex min-h-screen flex-col overflow-x-hidden">
+
+    <!-- ═══ HEADER ═══ -->
+    <header class="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/90 backdrop-blur-md">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex h-16 items-center justify-between gap-4">
+          <!-- Logo -->
+          <a href="/" class="flex items-center gap-3 shrink-0">
+            <div class="text-primary"><span class="material-symbols-outlined text-3xl">chair</span></div>
+            <h1 class="text-xl font-extrabold tracking-tighter uppercase hidden sm:block">Galpão do <span
+                class="text-primary">Cândido</span></h1>
+          </a>
+          <!-- Desktop Nav -->
+          <nav class="hidden md:flex items-center gap-8">
+            <a class="text-sm font-semibold hover:text-primary transition-colors" href="#catalogo">Catálogo</a>
+            <a class="text-sm font-semibold hover:text-primary transition-colors" href="#sobre">Sobre</a>
+            <a class="text-sm font-semibold hover:text-primary transition-colors" href="#contato">Contato</a>
+            <button id="app-drawer-btn"
+              class="text-sm font-semibold hover:text-primary transition-colors flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+                <line x1="12" y1="18" x2="12" y2="18" stroke-linecap="round" />
+              </svg>
+              App
+            </button>
+          </nav>
+          <!-- Actions -->
+          <div class="flex items-center gap-2">
+            <!-- Search bar -->
+            <div class="hidden sm:flex relative">
+              <span
+                class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+              <input id="search-input"
+                class="bg-slate-100 border-none rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/50 w-48 lg:w-64 transition-all"
+                placeholder="Buscar móveis..." type="text" />
+            </div>
+            <!-- Cart button -->
+            <button id="cart-btn" class="relative p-2 hover:bg-primary/10 rounded-lg text-slate-600 transition-colors"
+              aria-label="Orçamento">
+              <span class="material-symbols-outlined">shopping_cart</span>
+              <span id="cart-badge"
+                class="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center hidden">0</span>
+            </button>
+            <!-- WhatsApp CTA -->
+            <a id="header-wa" href="#" target="_blank" rel="noopener noreferrer"
+              class="hidden sm:flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+              </svg>
+              WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-grow">
+
+      <!-- ═══ HERO ═══ -->
+      <section class="relative px-4 py-6 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div class="relative h-[440px] lg:h-[520px] w-full overflow-hidden rounded-2xl bg-slate-900 shadow-2xl group">
+          <div id="hero-bg"
+            class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+            style="background-image: linear-gradient(to right, rgba(0,0,0,0.75), rgba(0,0,0,0.2));">
+          </div>
+          <div class="absolute inset-0 flex flex-col justify-center px-5 sm:px-16 max-w-2xl">
+            <span class="text-primary font-bold tracking-widest uppercase text-xs mb-3 block">Coleção Exclusiva</span>
+            <h2 class="text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-4">Móveis de
+              Luxo<br>&amp; Design Atemporal</h2>
+            <p class="text-slate-300 text-sm lg:text-lg mb-6 leading-relaxed">Transforme seu ambiente com a
+              sofisticação de peças selecionadas à mão.</p>
+            <div class="flex flex-row flex-wrap gap-3">
+              <a href="#catalogo"
+                class="bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-lg font-bold transition-all shadow-lg shadow-primary/30 text-sm text-center">
+                Explorar Catálogo
+              </a>
+              <a id="hero-wa" href="#" target="_blank" rel="noopener noreferrer"
+                class="bg-white/10 backdrop-blur hover:bg-white/20 text-white px-6 py-2.5 rounded-lg font-bold transition-all text-sm flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                </svg>
+                Falar com Vendedor
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ CATEGORY TABS ═══ -->
+      <section id="catalogo" class="sticky top-16 z-40 bg-white border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex gap-6 overflow-x-auto no-scrollbar py-4" id="category-tabs" role="tablist">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ PRODUCT GRID ═══ -->
+      <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <!-- Skeletons while loading -->
+          <div class="group flex flex-col gap-4 skeleton rounded-xl overflow-hidden"
+            style="background: linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%); background-size: 200% 100%; height: 340px;">
+          </div>
+          <div class="group flex flex-col gap-4 skeleton rounded-xl overflow-hidden"
+            style="background: linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%); background-size: 200% 100%; height: 340px;">
+          </div>
+          <div class="group flex flex-col gap-4 skeleton rounded-xl overflow-hidden"
+            style="background: linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%); background-size: 200% 100%; height: 340px;">
+          </div>
+          <div class="group flex flex-col gap-4 skeleton rounded-xl overflow-hidden"
+            style="background: linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%); background-size: 200% 100%; height: 340px;">
+          </div>
+        </div>
+        <div id="no-results" class="hidden text-center py-16 text-slate-400">
+          <span class="material-symbols-outlined text-5xl mb-4 block">search_off</span>
+          <p class="text-lg font-semibold">Nenhuma peça encontrada</p>
+        </div>
+        <div class="flex justify-center mt-10 hidden" id="load-more-row">
+          <button id="load-more-btn"
+            class="border-2 border-slate-900 text-slate-900 px-8 py-3 rounded-lg font-bold hover:bg-primary hover:border-primary hover:text-white transition-all">
+            Ver mais peças
+          </button>
+        </div>
+      </section>
+
+      <!-- ═══ SOBRE ═══ -->
+      <section id="sobre" class="relative py-20 overflow-hidden">
+        <!-- Background image -->
+        <div class="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style="background-image: url('https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1600&q=80&auto=format&fit=crop');">
+        </div>
+        <!-- Dark overlay -->
+        <div class="absolute inset-0 bg-slate-900/80"></div>
+
+        <!-- Content -->
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <span class="text-primary font-bold tracking-widest uppercase text-sm">Sobre nós</span>
+          <h3 class="text-3xl lg:text-4xl font-black mt-2 mb-4 text-white">O Galpão do Cândido</h3>
+          <p class="text-slate-300 max-w-2xl mx-auto leading-relaxed">
+            Excelência em mobiliário de alto padrão desde 1995. Selecionamos, restauramos e autenticamos móveis de
+            design vintage e antiguidades com procedência comprovada. Cada peça carrega uma história que preservamos com
+            cuidado.
+          </p>
+          <div class="flex justify-center gap-12 mt-10">
+            <div>
+              <div class="text-3xl font-black text-primary">50+</div>
+              <div class="text-sm text-slate-300 uppercase tracking-wider mt-1">Anos de história</div>
+            </div>
+            <div>
+              <div class="text-3xl font-black text-primary">100%</div>
+              <div class="text-sm text-slate-300 uppercase tracking-wider mt-1">Autenticadas</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ CONTATO ═══ -->
+      <section id="contato" class="py-16 bg-slate-900 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <span class="text-primary font-bold tracking-widest uppercase text-sm">Fale conosco</span>
+          <h3 class="text-3xl lg:text-4xl font-black mt-2 mb-4">Tem interesse em alguma peça?</h3>
+          <p class="text-slate-400 max-w-xl mx-auto mb-8">Nossos especialistas estão prontos para ajudar. Entre em
+            contato pelo WhatsApp.</p>
+          <a id="contact-wa" href="#" target="_blank" rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+            </svg>
+            Chamar no WhatsApp
+          </a>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ═══ FOOTER ═══ -->
+    <footer class="py-5 bg-black border-t border-white/10">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <span class="text-primary"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none"
+              viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg></span>
+          <span class="text-white font-bold text-sm">Galpão do Cândido</span>
+          <span class="text-white/40 text-xs hidden sm:inline">© 2025 Todos os direitos reservados.</span>
+        </div>
+        <a href="/admin" class="text-white/40 hover:text-primary text-xs transition-colors">Área Administrativa</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  APP DRAWER (QR Code / Web App)                       -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div id="app-drawer-backdrop"
+    class="fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300"
+    aria-hidden="true">
+
+    <div id="app-drawer-panel"
+      class="relative w-full sm:max-w-sm bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col items-center p-8 pt-10 translate-y-8 sm:translate-y-0 sm:scale-95 transition-all duration-300"
+      style="transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), opacity 0.35s;">
+
+      <!-- Close button -->
+      <button id="app-drawer-close"
+        class="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors text-slate-500"
+        aria-label="Fechar">&times;</button>
+
+      <!-- Badge -->
+      <span
+        class="text-[10px] font-black uppercase tracking-widest text-primary bg-orange-50 border border-orange-200 rounded-full px-3 py-1 mb-4">Web
+        App</span>
+
+      <!-- Icon -->
+      <div
+        class="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center mb-5 shadow-lg shadow-slate-900/30">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="#f48c25"
+          stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+        </svg>
+      </div>
+
+      <!-- Title -->
+      <h2 class="text-2xl font-black text-slate-900 text-center leading-tight mb-2">Leve o Galpão<br>no seu bolso</h2>
+
+      <!-- Subtitle -->
+      <p class="text-slate-500 text-sm text-center leading-relaxed mb-6 max-w-xs">
+        Acesse nosso catálogo exclusivo de móveis de design a qualquer hora. Salve o site como um App — sem instalar
+        nada da App Store!
+      </p>
+
+      <!-- QR Code -->
+      <div class="bg-white border-2 border-slate-100 rounded-2xl p-3 mb-5 shadow-sm">
+        <img id="app-qr-img" src="" alt="QR Code para acessar o Galpão do Cândido" width="180" height="180"
+          class="block rounded-xl" loading="lazy">
+      </div>
+
+      <!-- Instructions -->
+      <p class="text-slate-400 text-xs text-center mb-4">Aponte a câmera do celular para o QR code</p>
+
+      <!-- Platform hints -->
+      <div class="flex gap-4 text-xs text-slate-500 mb-2">
+        <div class="flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+            viewBox="0 0 24 24">
+            <path
+              d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+          </svg>
+          iPhone: Compartilhar → "Adicionar à Tela de Início"
+        </div>
+      </div>
+      <div class="flex gap-4 text-xs text-slate-500">
+        <div class="flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+            viewBox="0 0 24 24">
+            <path
+              d="m3.18 23.76 10.3-10.3L3.2.26C2.5.64 2 1.38 2 2.28v19.44c0 .9.5 1.64 1.18 2.04zm11.57-11.57L3.36 1.02 17.7 9.1l-2.95 3.09zM21 11.14l-2.9-1.67-3.21 3.21L18.1 15.7 21 14c.93-.54.93-1.86 0-2.86zM3.36 22.98l11.28-6.21-2.9-2.9-8.38 9.11z" />
+          </svg>
+          Android: Menu do navegador → "Adicionar à tela inicial"
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  PRODUCT DETAIL DRAWER                                 -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div id="product-drawer-backdrop"
+    class="fixed inset-0 z-[60] flex justify-end bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none"
+    aria-hidden="true">
+    <aside id="product-drawer-panel" class="w-full max-w-lg h-full bg-white shadow-2xl flex flex-col translate-x-full">
+      <!-- Close -->
+      <button id="product-drawer-close"
+        class="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/90 shadow flex items-center justify-center z-10 hover:bg-slate-100 transition-colors"
+        aria-label="Fechar">✕</button>
+
+      <!-- Gallery -->
+      <div id="drawer-gallery" class="shrink-0 relative">
+        <div class="aspect-[4/3] w-full bg-slate-100 overflow-hidden">
+          <img id="drawer-main-img" src="" alt="" class="w-full h-full object-cover transition-opacity duration-200" />
+        </div>
+        <div id="drawer-thumbs"
+          class="flex gap-2 p-3 overflow-x-auto no-scrollbar bg-slate-50 border-b border-slate-100"></div>
+      </div>
+
+      <!-- Info (scrollable) -->
+      <div class="flex-1 overflow-y-auto p-6">
+        <span id="drawer-category" class="text-xs font-bold uppercase tracking-widest text-primary"></span>
+        <h2 id="drawer-title" class="text-2xl font-black mt-1 mb-1"></h2>
+        <p id="drawer-subtitle" class="text-slate-500 text-sm italic mb-4"></p>
+        <div class="border-t border-slate-100 mb-4"></div>
+        <p id="drawer-description" class="text-slate-700 leading-relaxed mb-6"></p>
+        <div class="flex items-baseline gap-3 mb-6">
+          <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Valor</span>
+          <span id="drawer-price" class="text-3xl font-black text-slate-900"></span>
+        </div>
+        <!-- CTA Buttons -->
+        <button id="drawer-add-quote"
+          class="w-full border-2 border-slate-900 text-slate-900 py-3 rounded-xl font-bold text-sm hover:bg-primary hover:border-primary hover:text-white transition-all mb-3 flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-[20px]">playlist_add</span>
+          Adicionar ao Orçamento
+        </button>
+        <a id="drawer-wa" href="#" target="_blank" rel="noopener noreferrer"
+          class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+          </svg>
+          Comprar Agora pelo WhatsApp
+        </a>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  QUOTE CART DRAWER                                     -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div id="cart-drawer-backdrop"
+    class="fixed inset-0 z-[60] flex justify-end bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none"
+    aria-hidden="true">
+    <aside id="cart-drawer-panel" class="w-full max-w-md h-full bg-white shadow-2xl flex flex-col translate-x-full">
+      <div class="flex items-center justify-between p-5 border-b border-slate-100">
+        <h3 class="text-xl font-black">Seu Orçamento</h3>
+        <button id="cart-close"
+          class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors">✕</button>
+      </div>
+
+      <div id="cart-items-list" class="flex-1 overflow-y-auto p-5 flex flex-col gap-4">
+        <p id="cart-empty" class="text-center text-slate-400 mt-10">Nenhuma peça adicionada.</p>
+      </div>
+
+      <div class="p-5 border-t border-slate-100 bg-slate-50">
+        <div class="flex justify-between font-black text-lg mb-4">
+          <span>Total Estimado:</span>
+          <span id="cart-total" class="text-primary">R$ 0,00</span>
+        </div>
+        <button id="cart-send-wa"
+          class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+          </svg>
+          Enviar Orçamento pelo WhatsApp
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    'use strict';
+
+    // ── Config ──────────────────────────────────────────
+    const WA_NUMBER = '5519996146549';
+    const PAGE_SIZE = 12;
+
+    // ── State ───────────────────────────────────────────
+    let allProducts = [];
+    let filteredProducts = [];
+    let currentCategory = 'Todos';
+    let currentSearch = '';
+    let page = 1;
+    let quoteCart = [];
+    let currentProduct = null;
+
+    // ── Helpers ─────────────────────────────────────────
+    function fmt(n) {
+      return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(n);
+    }
+
+    function waUrl(msg) {
+      return `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
+    }
+
+    function genericWaUrl() {
+      return waUrl('Olá! Gostaria de conhecer as peças disponíveis no Galpão do Cândido.');
+    }
+
+    function productWaUrl(p) {
+      return waUrl(`Olá! Tenho interesse na peça *${p.title}* (${fmt(p.price)}). Vi no catálogo do Galpão do Cândido.`);
+    }
+
+    function getImg(p) {
+      const imgs = p.images && typeof p.images === 'string' ? JSON.parse(p.images) : (p.images || []);
+      return imgs.filter(i => i && !i.includes('demo-'))[0] || null;
+    }
+
+    function getAllImgs(p) {
+      const imgs = p.images && typeof p.images === 'string' ? JSON.parse(p.images) : (p.images || []);
+      return imgs.filter(i => i && !i.includes('demo-'));
+    }
+
+    // ── WhatsApp links ───────────────────────────────────
+    function initWaLinks() {
+      const url = genericWaUrl();
+      ['header-wa', 'hero-wa', 'contact-wa'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.href = url;
+      });
+    }
+
+    // ── Fetch products ───────────────────────────────────
+    async function fetchProducts() {
+      try {
+        const res = await fetch('/api/products');
+        if (!res.ok) throw new Error('API error');
+        allProducts = await res.json();
+      } catch {
+        allProducts = [];
+      }
+    }
+
+    // ── Category Tabs ────────────────────────────────────
+    function renderTabs() {
+      const cats = ['Todos', ...new Set(allProducts.map(p => p.category))];
+      const container = document.getElementById('category-tabs');
+      container.innerHTML = cats.map((cat, i) => `
+    <button role="tab" aria-selected="${i === 0}" data-cat="${cat}"
+      class="tab-btn whitespace-nowrap text-sm font-bold tracking-wider uppercase pb-1 relative transition-colors
+             ${i === 0 ? 'text-primary' : 'text-slate-500 hover:text-primary'}">
+      ${cat}
+      ${i === 0 ? '<div class="h-0.5 w-full bg-primary absolute -bottom-4 rounded-t-full"></div>' : ''}
+    </button>
+  `).join('');
+
+      container.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          container.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('text-primary');
+            b.classList.add('text-slate-500');
+            b.setAttribute('aria-selected', 'false');
+            b.innerHTML = b.dataset.cat;
+          });
+          btn.classList.add('text-primary');
+          btn.classList.remove('text-slate-500');
+          btn.setAttribute('aria-selected', 'true');
+          btn.innerHTML = `${btn.dataset.cat}<div class="h-0.5 w-full bg-primary absolute -bottom-4 rounded-t-full"></div>`;
+          currentCategory = btn.dataset.cat;
+          page = 1;
+          applyFilters();
+        });
+      });
+    }
+
+    // ── Filters ──────────────────────────────────────────
+    function applyFilters() {
+      let items = allProducts;
+      if (currentCategory !== 'Todos') {
+        items = items.filter(p => p.category === currentCategory);
+      }
+      if (currentSearch.trim()) {
+        const q = currentSearch.toLowerCase();
+        items = items.filter(p =>
+          p.title.toLowerCase().includes(q) ||
+          (p.category || '').toLowerCase().includes(q) ||
+          (p.subtitle || '').toLowerCase().includes(q)
+        );
+      }
+      filteredProducts = items;
+      renderGrid();
+    }
+
+    // ── Product Grid ─────────────────────────────────────
+    function renderGrid() {
+      const grid = document.getElementById('product-grid');
+      const noResults = document.getElementById('no-results');
+      const loadMoreRow = document.getElementById('load-more-row');
+      const sliced = filteredProducts.slice(0, page * PAGE_SIZE);
+
+      if (filteredProducts.length === 0) {
+        grid.innerHTML = '';
+        noResults.classList.remove('hidden');
+        loadMoreRow.classList.add('hidden');
+        return;
+      }
+
+      noResults.classList.add('hidden');
+      grid.innerHTML = sliced.map(p => {
+        const img = getImg(p);
+        const imgHtml = img
+          ? `<div class="absolute inset-0 bg-center bg-cover transition-transform duration-500 group-hover:scale-110" style="background-image:url('${img}')"></div>`
+          : `<div class="absolute inset-0 flex items-center justify-center text-slate-300"><span class="material-symbols-outlined text-5xl">chair</span></div>`;
+
+        const badge = p.featured
+          ? `<span class="absolute top-3 left-3 bg-primary text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full">Destaque</span>`
+          : '';
+
+        return `
+    <div class="group flex flex-col gap-3 cursor-pointer product-card" data-id="${p.id}">
+      <div class="relative aspect-square overflow-hidden rounded-xl bg-slate-100 border border-slate-100">
+        ${imgHtml}
+        ${badge}
+      </div>
+      <div class="flex flex-col gap-1 px-1">
+        <div class="flex justify-between items-baseline gap-2 w-full overflow-hidden">
+          <div class="card-title-wrapper">
+            <h3 class="text-base font-bold group-hover:text-primary transition-colors card-title-inner">${p.title}</h3>
+          </div>
+          <span class="text-primary font-black text-sm shrink-0">${fmt(p.price)}</span>
+        </div>
+        <p class="text-slate-500 text-xs truncate h-4">${p.subtitle || p.category}</p>
+      </div>
+      <button class="w-full py-2.5 border-2 border-slate-900 text-sm font-bold rounded-xl hover:bg-primary hover:border-primary hover:text-white transition-all btn-view" data-id="${p.id}">
+        Ver Detalhes
+      </button>
+    </div>`;
+      }).join('');
+
+      // Bind card clicks
+      grid.querySelectorAll('.product-card, .btn-view').forEach(el => {
+        el.addEventListener('click', (e) => {
+          if (e.target.closest('.btn-view')) e.stopPropagation();
+          const id = el.dataset.id;
+          openProductDrawer(id);
+        });
+      });
+
+      // Scroll Title Hover Event
+      grid.querySelectorAll('.card-title-wrapper').forEach(wrapper => {
+        const inner = wrapper.querySelector('.card-title-inner');
+        if (!inner) return;
+        wrapper.addEventListener('mouseenter', () => {
+          const overflow = inner.scrollWidth - wrapper.clientWidth;
+          if (overflow > 2) {
+            wrapper.style.setProperty('--scroll-dist', `-${overflow}px`);
+            wrapper.classList.add('scrolling');
+          }
+        });
+        wrapper.addEventListener('mouseleave', () => {
+          wrapper.classList.remove('scrolling');
+        });
+      });
+
+      // Load more
+      if (sliced.length < filteredProducts.length) {
+        loadMoreRow.classList.remove('hidden');
+      } else {
+        loadMoreRow.classList.add('hidden');
+      }
+    }
+
+    // ── Product Drawer ───────────────────────────────────
+    function openProductDrawer(id) {
+      const p = allProducts.find(x => String(x.id) === String(id));
+      if (!p) return;
+      currentProduct = p;
+
+      const imgs = getAllImgs(p);
+      const mainImg = document.getElementById('drawer-main-img');
+
+      document.getElementById('drawer-category').textContent = p.category;
+      document.getElementById('drawer-title').textContent = p.title;
+      document.getElementById('drawer-subtitle').textContent = p.subtitle || '';
+      document.getElementById('drawer-description').textContent = p.description || '';
+      document.getElementById('drawer-price').textContent = fmt(p.price);
+      document.getElementById('drawer-wa').href = productWaUrl(p);
+
+      if (imgs.length > 0) {
+        mainImg.src = imgs[0];
+        mainImg.alt = p.title;
+        mainImg.style.display = 'block';
+        const thumbs = document.getElementById('drawer-thumbs');
+        if (imgs.length > 1) {
+          thumbs.innerHTML = imgs.map((src, i) =>
+            `<img src="${src}" data-idx="${i}" class="thumb-img w-16 h-16 object-cover rounded-lg border-2 cursor-pointer shrink-0 ${i === 0 ? 'border-primary' : 'border-transparent hover:border-primary'} transition-colors"/>`
+          ).join('');
+          thumbs.querySelectorAll('.thumb-img').forEach(img => {
+            img.addEventListener('click', () => {
+              thumbs.querySelectorAll('.thumb-img').forEach(t => t.classList.replace('border-primary', 'border-transparent'));
+              img.classList.replace('border-transparent', 'border-primary');
+              mainImg.style.opacity = '0';
+              setTimeout(() => { mainImg.src = imgs[parseInt(img.dataset.idx)]; mainImg.style.opacity = '1'; }, 150);
+            });
+          });
+        } else {
+          thumbs.innerHTML = '';
+        }
+      } else {
+        mainImg.src = '';
+        mainImg.style.display = 'none';
+        document.getElementById('drawer-thumbs').innerHTML = '';
+      }
+
+      // Check if already in cart
+      updateDrawerAddBtn(p.id);
+
+      const backdrop = document.getElementById('product-drawer-backdrop');
+      const panel = document.getElementById('product-drawer-panel');
+      backdrop.style.opacity = '1';
+      backdrop.style.pointerEvents = 'auto';
+      backdrop.setAttribute('aria-hidden', 'false');
+      panel.style.transform = 'translateX(0)';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeProductDrawer() {
+      const backdrop = document.getElementById('product-drawer-backdrop');
+      const panel = document.getElementById('product-drawer-panel');
+      backdrop.style.opacity = '0';
+      backdrop.style.pointerEvents = 'none';
+      backdrop.setAttribute('aria-hidden', 'true');
+      panel.style.transform = 'translateX(100%)';
+      document.body.style.overflow = '';
+    }
+
+    function updateDrawerAddBtn(id) {
+      const btn = document.getElementById('drawer-add-quote');
+      if (!btn) return;
+      const inCart = quoteCart.some(p => p.id === id);
+      if (inCart) {
+        btn.innerHTML = '<span class="material-symbols-outlined text-[20px]">check_circle</span> Já está no Orçamento';
+        btn.classList.add('bg-slate-100', 'text-slate-500');
+        btn.classList.remove('border-slate-900', 'text-slate-900');
+      } else {
+        btn.innerHTML = '<span class="material-symbols-outlined text-[20px]">playlist_add</span> Adicionar ao Orçamento';
+        btn.classList.remove('bg-slate-100', 'text-slate-500');
+        btn.classList.add('border-slate-900', 'text-slate-900');
+      }
+    }
+
+    // ── Cart Logic ───────────────────────────────────────
+    function loadCartFromStorage() {
+      try { quoteCart = JSON.parse(localStorage.getItem('galpao_quote') || '[]'); } catch { quoteCart = []; }
+    }
+
+    function saveCart() {
+      localStorage.setItem('galpao_quote', JSON.stringify(quoteCart));
+      updateCartUI();
+    }
+
+    function addToCart(product) {
+      if (!quoteCart.some(p => p.id === product.id)) {
+        quoteCart.push(product);
+        saveCart();
+      }
+    }
+
+    function removeFromCart(id) {
+      quoteCart = quoteCart.filter(p => p.id !== id);
+      saveCart();
+      if (currentProduct && currentProduct.id === id) updateDrawerAddBtn(id);
+    }
+
+    function updateCartUI() {
+      const badge = document.getElementById('cart-badge');
+      const count = quoteCart.length;
+
+      if (count > 0) {
+        badge.textContent = count;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+
+      const list = document.getElementById('cart-items-list');
+      const emptyMsg = document.getElementById('cart-empty');
+      const totalEl = document.getElementById('cart-total');
+      const sendBtn = document.getElementById('cart-send-wa');
+
+      if (count === 0) {
+        list.innerHTML = '';
+        emptyMsg && list.appendChild(emptyMsg);
+        emptyMsg.style.display = 'block';
+        totalEl.textContent = 'R$ 0,00';
+        if (sendBtn) sendBtn.style.display = 'none';
+        return;
+      }
+
+      if (emptyMsg) emptyMsg.style.display = 'none';
+      if (sendBtn) sendBtn.style.display = 'flex';
+
+      let total = 0;
+      list.innerHTML = '';
+      quoteCart.forEach(p => {
+        total += p.price || 0;
+        const img = getImg(p);
+        const div = document.createElement('div');
+        div.className = 'flex gap-3 pb-4 border-b border-slate-100';
+        div.innerHTML = `
+      ${img ? `<img src="${img}" class="w-20 h-20 object-cover rounded-xl shrink-0"/>` : `<div class="w-20 h-20 bg-slate-100 rounded-xl flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-slate-300 text-3xl">chair</span></div>`}
+      <div class="flex flex-col justify-center flex-1 min-w-0">
+        <div class="font-bold text-sm leading-tight truncate">${p.title}</div>
+        <div class="text-primary font-bold mt-1">${fmt(p.price)}</div>
+        <button class="remove-btn text-red-400 hover:text-red-600 text-xs font-semibold mt-1 text-left transition-colors" data-id="${p.id}">Remover</button>
+      </div>`;
+        list.appendChild(div);
+      });
+
+      list.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.addEventListener('click', () => removeFromCart(btn.dataset.id));
+      });
+
+      totalEl.textContent = fmt(total);
+    }
+
+    function openCart() {
+      const backdrop = document.getElementById('cart-drawer-backdrop');
+      const panel = document.getElementById('cart-drawer-panel');
+      backdrop.style.opacity = '1';
+      backdrop.style.pointerEvents = 'auto';
+      panel.style.transform = 'translateX(0)';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeCart() {
+      const backdrop = document.getElementById('cart-drawer-backdrop');
+      const panel = document.getElementById('cart-drawer-panel');
+      backdrop.style.opacity = '0';
+      backdrop.style.pointerEvents = 'none';
+      panel.style.transform = 'translateX(100%)';
+      document.body.style.overflow = '';
+    }
+
+    function sendQuoteWa() {
+      if (!quoteCart.length) return;
+      let msg = 'Olá! Gostaria de um orçamento para as seguintes peças do Galpão do Cândido:\n\n';
+      let total = 0;
+      quoteCart.forEach((p, i) => {
+        msg += `${i + 1}. *${p.title}* — ${fmt(p.price)}\n`;
+        total += p.price || 0;
+      });
+      msg += `\n*Total Estimado: ${fmt(total)}*\n\nAguardo retorno. Obrigado!`;
+      window.open(waUrl(msg), '_blank');
+    }
+
+    // ── App Init ─────────────────────────────────────────
+    async function init() {
+      initWaLinks();
+      loadCartFromStorage();
+      updateCartUI();
+
+      // Load global settings
+      try {
+        const settingsRes = await fetch('/api/settings');
+        if (settingsRes.ok) {
+          const settings = await settingsRes.json();
+          if (settings.banner_url) {
+            document.getElementById('hero-bg').style.backgroundImage = `linear-gradient(to right, rgba(0,0,0,0.75), rgba(0,0,0,0.2)), url('${settings.banner_url}')`;
+          }
+        }
+      } catch (err) { }
+
+      await fetchProducts();
+      renderTabs();
+      applyFilters();
+
+      // Search
+      const searchEl = document.getElementById('search-input');
+      if (searchEl) {
+        let searchTimer;
+        searchEl.addEventListener('input', () => {
+          clearTimeout(searchTimer);
+          searchTimer = setTimeout(() => {
+            currentSearch = searchEl.value;
+            page = 1;
+            applyFilters();
+          }, 300);
+        });
+      }
+
+      // Load more
+      document.getElementById('load-more-btn').addEventListener('click', () => {
+        page++;
+        renderGrid();
+      });
+
+      // Product drawer events
+      document.getElementById('product-drawer-close').addEventListener('click', closeProductDrawer);
+      document.getElementById('product-drawer-backdrop').addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeProductDrawer();
+      });
+      document.getElementById('drawer-add-quote').addEventListener('click', () => {
+        if (currentProduct && !quoteCart.some(p => p.id === currentProduct.id)) {
+          addToCart(currentProduct);
+          updateDrawerAddBtn(currentProduct.id);
+        }
+      });
+
+      // Cart events
+      document.getElementById('cart-btn').addEventListener('click', openCart);
+      document.getElementById('cart-close').addEventListener('click', closeCart);
+      document.getElementById('cart-drawer-backdrop').addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeCart();
+      });
+      document.getElementById('cart-send-wa').addEventListener('click', sendQuoteWa);
+
+      // Escape key
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') { closeProductDrawer(); closeCart(); closeAppDrawer(); }
+      });
+
+      // ── App Drawer (QR Code Web App) ────────────────────
+      function openAppDrawer() {
+        const backdrop = document.getElementById('app-drawer-backdrop');
+        const panel = document.getElementById('app-drawer-panel');
+        const qrImg = document.getElementById('app-qr-img');
+
+        // Generate QR code for current site URL
+        const siteUrl = encodeURIComponent(window.location.origin);
+        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=10&data=${siteUrl}&color=0D0D0D&bgcolor=FFFFFF&format=png&qzone=2`;
+
+        backdrop.style.opacity = '1';
+        backdrop.style.pointerEvents = 'auto';
+        backdrop.setAttribute('aria-hidden', 'false');
+        panel.style.transform = 'translateY(0) scale(1)';
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeAppDrawer() {
+        const backdrop = document.getElementById('app-drawer-backdrop');
+        const panel = document.getElementById('app-drawer-panel');
+        backdrop.style.opacity = '0';
+        backdrop.style.pointerEvents = 'none';
+        backdrop.setAttribute('aria-hidden', 'true');
+        panel.style.transform = '';
+        document.body.style.overflow = '';
+      }
+
+      document.getElementById('app-drawer-btn').addEventListener('click', openAppDrawer);
+      document.getElementById('app-drawer-close').addEventListener('click', closeAppDrawer);
+      document.getElementById('app-drawer-backdrop').addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeAppDrawer();
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+
+</html>

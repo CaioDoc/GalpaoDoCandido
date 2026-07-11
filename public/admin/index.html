@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel Admin — Galpão do Cândido</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/admin/css/admin.css" />
+</head>
+
+<body>
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <div class="admin-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <span class="logo-mark">G</span>
+                <div>
+                    <div class="sidebar-store-name">Galpão do Cândido</div>
+                    <div class="sidebar-sub">Admin</div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav" aria-label="Menu do painel">
+                <a href="#" class="sidebar-link active" id="nav-products" data-page="products">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    Produtos
+                </a>
+                <a href="#" class="sidebar-link" id="nav-categories" data-page="categories">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                    Categorias
+                </a>
+                <a href="#" class="sidebar-link" id="nav-settings" data-page="settings">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Configurações
+                </a>
+                <button class="sidebar-link" id="nav-webapp" type="button"
+                    style="background:transparent; border:none; width:100%; text-align:left; cursor:pointer;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+                        <line x1="12" y1="18" x2="12" y2="18" stroke-linecap="round" stroke-width="3" />
+                    </svg>
+                    Baixar App
+                </button>
+                <a href="/" target="_blank" class="sidebar-link" rel="noopener noreferrer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    Ver Loja
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-avatar" id="sidebar-avatar">A</div>
+                    <div class="sidebar-username" id="sidebar-username">admin</div>
+                </div>
+                <button class="btn-logout" id="logout-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Sair
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN -->
+        <div class="main-content">
+            <!-- Topbar -->
+            <header class="admin-topbar">
+                <button class="topbar-toggle" id="topbar-toggle" aria-label="Abrir menu">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+                <span class="topbar-title" id="topbar-title">Produtos</span>
+
+
+                <!-- Avatar (mobile only) -->
+                <div class="mobile-topbar-avatar" id="mobile-topbar-avatar" aria-hidden="true">A</div>
+            </header>
+
+            <!-- PAGE: PRODUCTS -->
+            <main class="admin-page" id="page-products">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Produtos</h1>
+                        <p class="page-subtitle" id="products-count">Carregando...</p>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-secondary" id="add-promotion-btn" style="background: rgba(124, 77, 255, 0.15); color: #a485ff; border: 1px solid rgba(124, 77, 255, 0.3); display: flex; align-items: center; gap: 0.4rem;">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="color: #a485ff;">
+                                <path d="M12 2L14.8 9.2L22 12L14.8 14.8L12 22L9.2 14.8L2 12L9.2 9.2L12 2Z"/>
+                            </svg>
+                            Criar Promoção (IA)
+                        </button>
+                        <button class="btn btn-primary" id="add-product-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Novo Produto
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="stats-grid" id="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total de Peças</div>
+                        <div class="stat-value" id="stat-total">—</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Em Destaque</div>
+                        <div class="stat-value stat-accent" id="stat-featured">—</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Categorias</div>
+                        <div class="stat-value" id="stat-categories">—</div>
+                    </div>
+                </div>
+
+                <!-- Toolbar -->
+                <div class="toolbar">
+                    <div class="search-wrap">
+                        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <input type="search" class="search-input" id="search-input" placeholder="Buscar produtos..."
+                            aria-label="Buscar produtos" />
+                    </div>
+                    <select class="filter-select" id="category-filter" aria-label="Filtrar por categoria">
+                        <option value="">Todas as categorias</option>
+                    </select>
+                </div>
+
+                <!-- Table -->
+                <div class="table-wrap">
+                    <table class="products-table" id="products-table" aria-label="Lista de produtos">
+                        <thead>
+                            <tr>
+                                <th>Imagem</th>
+                                <th>Produto</th>
+                                <th>Categoria</th>
+                                <th>Preço</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-tbody">
+                            <tr>
+                                <td colspan="6" class="table-empty">Carregando produtos...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+
+            <!-- PAGE: CATEGORIES -->
+            <main class="admin-page" id="page-categories" style="display:none;">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Categorias</h1>
+                        <p class="page-subtitle" id="categories-count">Carregando...</p>
+                    </div>
+                </div>
+
+                <!-- Add category form -->
+                <div class="cat-add-box">
+                    <div class="cat-add-field">
+                        <input type="text" id="cat-name-input" class="form-input"
+                            placeholder="Nome da nova categoria..." maxlength="60"
+                            aria-label="Nome da nova categoria" />
+                        <button class="btn btn-primary" id="cat-add-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Adicionar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Category list -->
+                <div class="cat-list" id="cat-list">
+                    <p class="cat-empty">Carregando categorias...</p>
+                </div>
+            </main>
+
+            <!-- PAGE: SETTINGS -->
+            <main class="admin-page" id="page-settings" style="display:none;">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Configurações do Site</h1>
+                        <p class="page-subtitle">Ajuste a aparência e informações globais</p>
+                    </div>
+                </div>
+
+                <div class="settings-card"
+                    style="background:var(--dark-3); border:1px solid var(--dark-4); border-radius:var(--radius-md); padding:1.5rem; margin-bottom:1.5rem;">
+                    <h2
+                        style="font-size:1.1rem; font-weight:600; font-family:var(--font-display); margin-bottom:0.5rem; color:var(--white-pure);">
+                        Banner Principal (Storefront Hero)</h2>
+                    <p style="font-size:0.85rem; color:var(--gray-300); margin-bottom:1.2rem;">
+                        Altere a imagem de fundo que aparece no topo da página inicial do site.
+                        <br><br>
+                        <strong>Recomendações:</strong><br>
+                        • Dimensões ideais: 1920x1080px (Proporção HD 16:9)<br>
+                        • Formatos aceitos: JPG, PNG, WEBP (Máx 10 MB)<br>
+                        • Imagens mais escuras ficam melhores com os textos brancos no site.
+                    </p>
+
+                    <div id="banner-preview-box"
+                        style="width:100%; max-width:600px; aspect-ratio:16/9; background:var(--dark-4); border-radius:var(--radius-sm); margin-bottom:1rem; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center;">
+                        <img id="banner-preview-img" src="" alt="Banner"
+                            style="width:100%; height:100%; object-fit:cover; display:none;">
+                        <span id="banner-preview-empty" style="color:var(--gray-400); font-size:0.9rem;">Carregando
+                            banner...</span>
+
+                        <!-- Upload Overlay -->
+                        <div id="banner-upload-overlay"
+                            style="position:absolute; inset:0; background:rgba(0,0,0,0.6); display:none; flex-direction:column; align-items:center; justify-content:center; color:white;">
+                            <div class="btn-login-spinner" style="width:24px; height:24px; margin-bottom:8px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"
+                                        stroke-opacity="0.3"></circle>
+                                    <path fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <span style="font-size:0.8rem; font-weight:600;">Fazendo upload...</span>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:0.5rem; align-items:center;">
+                        <label for="banner-upload-input" class="btn btn-primary"
+                            style="cursor:pointer; display:inline-flex;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            Enviar Nova Imagem
+                        </label>
+                        <input type="file" id="banner-upload-input" accept="image/*" style="display:none;">
+
+                        <button class="btn btn-danger" id="banner-remove-btn" style="display:none;">
+                            Remover e Restaurar Padrão
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- PRODUCT MODAL (Add / Edit) -->
+    <div class="modal-backdrop" id="product-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-panel">
+            <div class="modal-header">
+                <h2 class="modal-title-text" id="modal-title">Novo Produto</h2>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <button type="button" class="modal-close-btn" id="modal-close">&#10005;</button>
+                </div>
+            </div>
+            <form id="product-form" novalidate>
+                <div class="modal-body">
+
+
+                    <div class="form-grid">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="f-title" class="form-label">Título <span class="required">*</span></label>
+                            <input type="text" id="f-title" class="form-input" placeholder="Ex: Poltrona Eames Original"
+                                required />
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="f-subtitle" class="form-label">Subtítulo</label>
+                            <input type="text" id="f-subtitle" class="form-input"
+                                placeholder="Ex: Design Clássico Americano" />
+                        </div>
+                        <div class="form-group">
+                            <label for="f-price" class="form-label">Preço (R$) <span class="required">*</span></label>
+                            <input type="number" id="f-price" class="form-input" placeholder="0.00" step="0.01" min="0"
+                                required />
+                        </div>
+                        <div class="form-group">
+                            <label for="f-category" class="form-label">Categoria <span class="required">*</span></label>
+                            <select id="f-category" class="form-input form-select" required>
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="f-description" class="form-label">Descrição</label>
+                            <textarea id="f-description" class="form-textarea"
+                                placeholder="Descreva a peça, seus detalhes e história..."></textarea>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <div class="switch-group">
+                                <label class="switch">
+                                    <input type="checkbox" id="f-featured" />
+                                    <span class="switch-slider"></span>
+                                </label>
+                                <span class="switch-label">Destacar no Hero e nas Novidades</span>
+                            </div>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label class="form-label">Fotos do Produto</label>
+                            <div class="upload-zone" id="upload-zone">
+                                <input type="file" class="upload-zone-input" id="file-input" accept="image/*" multiple
+                                    aria-label="Selecionar fotos" />
+                                <div class="upload-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <p class="upload-text"><strong>Clique ou arraste</strong> as fotos aqui</p>
+                                <p class="upload-hint">JPG, PNG, WEBP — máx. 10MB por foto</p>
+                            </div>
+                            <div class="upload-previews" id="upload-previews"></div>
+                            <div id="upload-error"
+                                style="color:var(--red-light);font-size:0.8rem;margin-top:4px;display:none;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="modal-cancel">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="modal-save">
+                        <span id="save-text">Salvar Produto</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- PROMOTE MODAL (WhatsApp Promotion) -->
+    <div class="modal-backdrop" id="promote-modal" role="dialog" aria-modal="true" style="z-index: 3100; display: none;">
+        <div class="modal-panel" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 class="modal-title-text" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span>Divulgar via WhatsApp 📢</span>
+                </h2>
+                <button class="modal-close-btn" id="promote-close" type="button">&#10005;</button>
+            </div>
+            <form id="promote-form" novalidate>
+                <div class="modal-body">
+                    
+                    <!-- WhatsApp Connection Status Badge -->
+                    <div id="promote-whatsapp-status-box" style="display: flex; align-items: center; justify-content: space-between; background: var(--dark-3); border: 1px solid var(--dark-4); padding: 0.75rem 1rem; border-radius: var(--radius-md); margin-bottom: 1.25rem;">
+                        <span style="font-size: 0.85rem; font-weight: 500; color: var(--gray-200);">Status do WhatsApp</span>
+                        <div id="promote-whatsapp-badge" class="badge" style="background: rgba(192, 57, 43, 0.15); color: var(--red-light); border: 1px solid rgba(192, 57, 43, 0.25);">
+                            Desconectado ✕
+                        </div>
+                    </div>
+                    
+                    <!-- QR Code instructions if not connected -->
+                    <div id="promote-qr-instructions" style="display: none; background: rgba(230, 126, 34, 0.08); border: 1px solid rgba(230, 126, 34, 0.25); padding: 1.25rem 1rem; border-radius: var(--radius-md); margin-bottom: 1.25rem; font-size: 0.8rem; color: var(--gray-200); line-height: 1.4; text-align: center;">
+                        <span style="font-weight: 600; display: block; margin-bottom: 0.5rem; color: var(--orange);">⚠️  Conectar WhatsApp</span>
+                        <p style="margin-bottom: 1rem; color: var(--gray-200); font-size: 0.82rem;">Escaneie o QR Code abaixo com o WhatsApp do seu celular (Aparelhos Conectados) para habilitar o envio automatizado.</p>
+                        
+                        <!-- QR Code Image Container -->
+                        <div id="promote-qr-container" style="background: white; padding: 12px; border-radius: var(--radius-md); display: inline-block; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+                            <img id="promote-qr-img" src="" alt="Aguardando código QR..." style="display: block; width: 180px; height: 180px; margin: 0 auto;">
+                        </div>
+                        
+                        <div id="promote-qr-loading" style="color: var(--gray-300); font-size: 0.75rem; margin-top: 0.75rem; display: none;">
+                            Aguardando o servidor gerar o código QR...
+                        </div>
+                    </div>
+
+                    <!-- Selected Product Mini Card -->
+                    <div class="promote-product-card" style="display: flex; gap: 1rem; background: var(--dark-3); border: 1px solid var(--dark-4); padding: 0.85rem; border-radius: var(--radius-md); margin-bottom: 1.25rem; align-items: center;">
+                        <img id="promote-prod-img" src="" alt="Produto" style="width: 56px; height: 56px; object-fit: cover; border-radius: var(--radius-sm); background: var(--dark-4);">
+                        <div style="flex: 1; min-width: 0;">
+                            <div id="promote-prod-title" style="font-size: 0.9rem; font-weight: 600; color: var(--white-pure); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Poltrona Vintage</div>
+                            <div id="promote-prod-subtitle" style="font-size: 0.75rem; color: var(--gray-400); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Design anos 60</div>
+                            <div id="promote-prod-price" style="font-size: 0.85rem; font-weight: 700; color: var(--orange); margin-top: 2px;">R$ 0,00</div>
+                        </div>
+                    </div>
+
+                    <!-- Form Inputs -->
+                    <div class="form-grid" style="grid-template-columns: 1fr;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label for="p-phone" class="form-label">WhatsApp do Cliente</label>
+                                <input type="tel" id="p-phone" class="form-input" placeholder="Ex: 5519996146549" style="background: var(--dark-3); border-color: var(--dark-4);" />
+                            </div>
+                            <div class="form-group">
+                                <label for="p-group-link" class="form-label">Ou Link do Grupo</label>
+                                <input type="url" id="p-group-link" class="form-input" placeholder="Ex: chat.whatsapp.com/..." style="background: var(--dark-3); border-color: var(--dark-4);" />
+                            </div>
+                        </div>
+                        <div style="margin-top: -0.5rem; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.7rem; color: var(--gray-300); display: block; line-height: 1.3;">
+                                Preencha o WhatsApp (Ex: 5519996146549) OU o Link do Grupo (Ex: chat.whatsapp.com/K3pL2o...).
+                            </span>
+                        </div>
+                        
+                        <!-- Scheduling inputs -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.25rem; margin-bottom: 0.5rem;">
+                            <div class="form-group">
+                                <label for="p-schedule-date" class="form-label">Agendar Data (Opcional)</label>
+                                <input type="date" id="p-schedule-date" class="form-input" style="background: var(--dark-3); border-color: var(--dark-4); color-scheme: dark;" />
+                            </div>
+                            <div class="form-group">
+                                <label for="p-schedule-time" class="form-label">Agendar Horário (Opcional)</label>
+                                <input type="time" id="p-schedule-time" class="form-input" style="background: var(--dark-3); border-color: var(--dark-4); color-scheme: dark;" />
+                            </div>
+                        </div>
+                        
+                        <!-- Conteúdo header and generation button -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 0.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--dark-4); padding-bottom: 0.5rem;">
+                            <span style="font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--white-pure);">Conteúdo</span>
+                            <button type="button" class="btn-ai-assist synced" id="promote-ai-generate-btn" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; display: flex; align-items: center; gap: 0.35rem;">
+                                <svg class="gemini-sparkle" viewBox="0 0 24 24" width="12" height="12" fill="currentColor">
+                                    <path d="M12 2L14.8 9.2L22 12L14.8 14.8L12 22L9.2 14.8L2 12L9.2 9.2L12 2Z"/>
+                                </svg>
+                                <span>Gerar Mensagem com IA</span>
+                                <span class="promote-ai-spinner" style="display: none; width: 10px; height: 10px; margin-left: 2px;">
+                                    <svg viewBox="0 0 24 24" fill="none" style="animation: spin 0.8s linear infinite; width:100%; height:100%;"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" stroke-opacity="0.3"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                </span>
+                            </button>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label for="p-discount" class="form-label">Desconto Oferecido</label>
+                                <select id="p-discount" class="form-input form-select" style="background: var(--dark-3); border-color: var(--dark-4);">
+                                    <option value="5%">5% de desconto</option>
+                                    <option value="10%" selected>10% de desconto</option>
+                                    <option value="15%">15% de desconto</option>
+                                    <option value="20%">20% de desconto</option>
+                                    <option value="30%">30% de desconto</option>
+                                    <option value="40%">40% de desconto</option>
+                                    <option value="Condição especial">Sem desconto (Condição Especial)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="p-tone" class="form-label">Tom do Texto (Gemini)</label>
+                                <select id="p-tone" class="form-input form-select" style="background: var(--dark-3); border-color: var(--dark-4);">
+                                    <option value="elegante e acolhedor" selected>Elegante & Acolhedor</option>
+                                    <option value="amigável e persuasivo">Amigável & Persuasivo</option>
+                                    <option value="urgente e exclusivo">Urgente & Exclusivo</option>
+                                    <option value="descontraído e moderno">Descontraído & Moderno</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="p-message" class="form-label">Mensagem a ser enviada <span class="required">*</span></label>
+                            <textarea id="p-message" class="form-textarea" style="height: 120px; background: var(--dark-3); border-color: var(--dark-4);" placeholder="Clique em 'Gerar Mensagem com IA' acima para preencher automaticamente, ou escreva sua mensagem personalizada aqui..." required></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="gap: 0.5rem;">
+                    <button type="button" class="btn btn-secondary" id="promote-cancel">Cancelar</button>
+                    <button type="submit" class="btn" id="promote-submit" style="background: #7C4DFF; color: white; border: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.25rem; border-radius: var(--radius-sm); font-size: 0.85rem; font-family: var(--font-body); cursor: pointer;">
+                        <span>Enviar 🚀</span>
+                        <span class="promote-spinner" style="display: none; width: 14px; height: 14px; margin-left: 4px;">
+                            <svg viewBox="0 0 24 24" fill="none" style="animation: spin 0.8s linear infinite; width:100%; height:100%;"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" stroke-opacity="0.3"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- GENERAL PROMOTE MODAL (General WhatsApp Promotion with Premium OpenRouter IA & Gemini) -->
+    <div class="modal-backdrop" id="general-promote-modal" role="dialog" aria-modal="true" style="z-index: 3100; display: none;">
+        <form id="gp-promote-form" class="modal-panel modal-promocao-geral" novalidate>
+            <!-- Header - Fixo no topo -->
+            <div class="modal-header">
+                <h2 class="modal-title-text" style="display: flex; align-items: center; gap: 0.5rem; font-family: 'Inter', sans-serif !important;">
+                    <span>Criar Promoção Geral com IA 📣</span>
+                </h2>
+                <button class="modal-close-btn" id="gp-promote-close" type="button">&#10005;</button>
+            </div>
+            
+            <!-- Corpo - Scrollável e flexível -->
+            <div class="modal-body">
+                <!-- COLUNA ESQUERDA: Imagem & Prompt (60% da largura no grid) -->
+                <div class="left-column" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <h3 style="font-family: 'Inter', sans-serif !important; font-weight: 600; color: #a855f7; margin-bottom: 0.25rem;">🎨 Imagem IA Premium (DALL-E 3)</h3>
+                    
+                    <div class="prompt-controls" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <label for="promocao-geral-prompt" class="form-label" style="font-size: 0.75rem;">O que deve ter na imagem da promoção?</label>
+                        <input 
+                          type="text" 
+                          id="promocao-geral-prompt" 
+                          class="form-input"
+                          placeholder="Descreva a imagem: ex 'Cadeira Eames em ambiente cozy com luz natural e estilo e-commerce'"
+                          style="width: 100%; padding: 0.6rem 0.8rem; border: 1px solid var(--dark-4); border-radius: 8px; background: var(--dark-3); color: white; font-size: 0.85rem;"
+                        />
+                        
+                        <!-- Action Buttons row (Mesmo Tamanho) -->
+                        <div class="action-buttons" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem; margin-top: 0.25rem;">
+                          
+                          <!-- Botão 1: Assistente -->
+                          <button type="button" id="btn-assistente-prompt" onclick="assistenteDePrompt()" class="btn-action" style="padding: 0.75rem; background: #6366f1; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <span>✨</span> Assistente
+                          </button>
+
+                          <!-- Botão 2: Gerar -->
+                          <button type="button" id="btn-gerar-imagem-ia" onclick="generateGeneralPromoteImage()" class="btn-action" style="padding: 0.75rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <span>🎨</span> Gerar Imagem
+                          </button>
+
+                          <!-- Botão 3: Importar (Input escondido) -->
+                          <button type="button" onclick="document.getElementById('file-upload').click()" class="btn-action" style="padding: 0.75rem; background: #374151; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <span>📁</span> Importar
+                          </button>
+                          
+                          <!-- Input oculto -->
+                          <input type="file" id="file-upload" accept="image/*" style="display: none;" onchange="handleFileUpload(this)">
+                        </div>
+                    </div>
+                    
+                    <!-- Premium Flexible Container (Tamanho Fixo e Sem Vazar) -->
+                    <div class="image-container-wrapper">
+                      <div class="image-preview-box">
+                        <!-- Placeholder -->
+                        <div id="promocao-geral-placeholder" style="text-align: center; color: #6b7280;">
+                          <div style="font-size: 40px; margin-bottom: 0.5rem;">🖼️</div>
+                          <p style="margin: 0;">Nenhuma imagem gerada ainda.</p>
+                          <p style="font-size: 0.8rem; color: var(--gray-500); margin-top: 0.25rem;">Clique em 'Gerar' ou 'Importar'</p>
+                        </div>
+                        
+                        <!-- Imagem Gerada/Importada -->
+                        <img id="promocao-geral-imagem-preview" style="display: none;" />
+                      </div>
+                    </div>
+                </div>
+                
+                <!-- COLUNA DIREITA: Mensagem & Configurações (40% da largura no grid) -->
+                <div class="right-column" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+                        
+                        <!-- WhatsApp Connection Status Badge -->
+                        <div id="gp-promote-whatsapp-status-box" style="display: flex; align-items: center; justify-content: space-between; background: var(--dark-3); border: 1px solid var(--dark-4); padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.8rem;">
+                            <span style="font-weight: 500; color: var(--gray-200);">Status do WhatsApp</span>
+                            <div id="gp-promote-whatsapp-badge" class="badge" style="background: rgba(192, 57, 43, 0.15); color: var(--red-light); border: 1px solid rgba(192, 57, 43, 0.25); font-size: 0.7rem; padding: 2px 8px;">
+                                Desconectado ✕
+                            </div>
+                        </div>
+
+                        <!-- Destination inputs -->
+                        <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                            <div>
+                                <label for="gp-phone" class="form-label" style="font-size: 0.75rem;">WhatsApp do Cliente</label>
+                                <input type="tel" id="gp-phone" class="form-input" placeholder="Ex: 5519996146549" style="background: var(--dark-3); border-color: var(--dark-4); font-size: 0.8rem; padding: 0.45rem 0.6rem;" />
+                            </div>
+                            <div>
+                                <label for="gp-group-link" class="form-label" style="font-size: 0.75rem;">Ou Link do Grupo</label>
+                                <input type="url" id="gp-group-link" class="form-input" placeholder="Ex: chat.whatsapp.com/..." style="background: var(--dark-3); border-color: var(--dark-4); font-size: 0.8rem; padding: 0.45rem 0.6rem;" />
+                            </div>
+                        </div>
+
+                        <!-- IA Message Generation (Gemini) -->
+                        <div style="border: 1px solid var(--dark-4); background: rgba(124, 77, 255, 0.03); padding: 0.85rem; border-radius: var(--radius-md); display: flex; flex-direction: column; gap: 0.65rem;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--dark-4); padding-bottom: 0.4rem;">
+                                <span style="font-family: var(--font-display); font-size: 0.9rem; font-weight: 700; color: #a485ff; display: flex; align-items: center; gap: 0.35rem;">
+                                    ✨ Mensagem IA (Gemini)
+                                </span>
+                                <button type="button" class="btn-ai-assist synced" id="gp-message-generate-btn" style="padding: 0.3rem 0.6rem; font-size: 0.7rem; display: flex; align-items: center; gap: 0.3rem;">
+                                    <svg class="gemini-sparkle" viewBox="0 0 24 24" width="10" height="10" fill="currentColor">
+                                        <path d="M12 2L14.8 9.2L22 12L14.8 14.8L12 22L9.2 14.8L2 12L9.2 9.2L12 2Z"/>
+                                    </svg>
+                                    <span>Gerar Mensagem IA</span>
+                                    <span class="gp-message-spinner" style="display: none; width: 8px; height: 8px; margin-left: 2px;">
+                                        <svg viewBox="0 0 24 24" fill="none" style="animation: spin 0.8s linear infinite; width:100%; height:100%;"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" stroke-opacity="0.3"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    </span>
+                                </button>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="gp-theme" class="form-label" style="font-size: 0.7rem; margin-bottom: 2px;">Tema ou Produto da Promoção</label>
+                                <input type="text" id="gp-theme" class="form-input" placeholder="Ex: Queima de Sofás de Jacarandá" style="background: var(--dark-3); border-color: var(--dark-4); font-size: 0.75rem; padding: 0.4rem 0.6rem;" />
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                <div class="form-group">
+                                    <label for="gp-discount" class="form-label" style="font-size: 0.7rem; margin-bottom: 2px;">Desconto Oferecido</label>
+                                    <select id="gp-discount" class="form-input form-select" style="background: var(--dark-3); border-color: var(--dark-4); font-size: 0.75rem; padding: 0.4rem 0.6rem; height: 28px;">
+                                        <option value="5%">5% de desconto</option>
+                                        <option value="10%" selected>10% de desconto</option>
+                                        <option value="15%">15% de desconto</option>
+                                        <option value="20%">20% de desconto</option>
+                                        <option value="30%">30% de desconto</option>
+                                        <option value="40%">40% de desconto</option>
+                                        <option value="Condição especial">Sem desconto (Condição Especial)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="gp-tone" class="form-label" style="font-size: 0.7rem; margin-bottom: 2px;">Tom do Texto</label>
+                                    <select id="gp-tone" class="form-input form-select" style="background: var(--dark-3); border-color: var(--dark-4); font-size: 0.75rem; padding: 0.4rem 0.6rem; height: 28px;">
+                                        <option value="elegante e acolhedor" selected>Elegante & Acolhedor</option>
+                                        <option value="amigável e persuasivo">Amigável & Persuasivo</option>
+                                        <option value="urgente e exclusivo">Urgente & Exclusivo</option>
+                                        <option value="descontraído e moderno">Descontraído & Moderno</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Message Review (Required) -->
+                        <div class="form-group">
+                            <label for="gp-message" class="form-label" style="font-size: 0.75rem;">Mensagem a ser enviada <span class="required">*</span></label>
+                            <textarea id="gp-message" class="form-textarea" style="height: 100px; background: var(--dark-3); border-color: var(--dark-4); font-size: 0.75rem; padding: 0.5rem;" placeholder="Clique em 'Gerar Mensagem IA' acima para preencher automaticamente, ou escreva sua mensagem personalizada aqui..." required></textarea>
+                        </div>
+
+                        <!-- Scheduling inputs -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                            <div class="form-group">
+                                <label for="gp-schedule-date" class="form-label" style="font-size: 0.7rem; margin-bottom: 2px;">Agendar Data</label>
+                                <input type="date" id="gp-schedule-date" class="form-input" style="background: var(--dark-3); border-color: var(--dark-4); color-scheme: dark; font-size: 0.75rem; padding: 0.4rem 0.6rem;" />
+                            </div>
+                            <div class="form-group">
+                                <label for="gp-schedule-time" class="form-label" style="font-size: 0.7rem; margin-bottom: 2px;">Agendar Horário</label>
+                                <input type="time" id="gp-schedule-time" class="form-input" style="background: var(--dark-3); border-color: var(--dark-4); color-scheme: dark; font-size: 0.75rem; padding: 0.4rem 0.6rem;" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer - Fixo no fundo -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="gp-promote-cancel" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Cancelar</button>
+                <button type="submit" class="btn" id="gp-promote-submit" style="background: #22c55e; color: white; border: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1.25rem; border-radius: var(--radius-sm); font-size: 0.8rem; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#16a34a'" onmouseout="this.style.background='#22c55e'">
+                    <span>Enviar Promoção 🚀</span>
+                    <span class="gp-promote-spinner" style="display: none; width: 12px; height: 12px; margin-left: 4px;">
+                        <svg viewBox="0 0 24 24" fill="none" style="animation: spin 0.8s linear infinite; width:100%; height:100%;"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" stroke-opacity="0.3"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></svg>
+                    </span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    </div>
+
+    <!-- WEBAPP QR MODAL -->
+    <div class="confirm-backdrop" id="webapp-modal" style="z-index:3100; align-items:center; justify-content:center;">
+        <div class="confirm-box"
+            style="max-width:360px; padding:2rem; display:flex; flex-direction:column; align-items:center; gap:0;">
+            <!-- Close -->
+            <button id="webapp-modal-close"
+                style="position:absolute; top:1rem; right:1rem; width:32px; height:32px; border-radius:50%; background:var(--dark-4); color:var(--gray-300); display:flex; align-items:center; justify-content:center; font-size:1rem; border:none; cursor:pointer;">&times;</button>
+
+            <!-- Badge -->
+            <span
+                style="font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:var(--orange); background:rgba(244,140,37,0.12); border:1px solid rgba(244,140,37,0.25); border-radius:999px; padding:2px 10px; margin-bottom:1rem;">Admin
+                Web App</span>
+
+            <!-- Icon -->
+            <div
+                style="width:56px; height:56px; background:var(--dark-4); border-radius:14px; display:flex; align-items:center; justify-content:center; margin-bottom:1.2rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24"
+                    stroke="var(--orange)" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18" />
+                </svg>
+            </div>
+
+            <!-- Title -->
+            <h3
+                style="font-family:var(--font-display); font-size:1.3rem; font-weight:800; color:var(--white-pure); text-align:center; line-height:1.3; margin-bottom:0.4rem;">
+                Gerencie de qualquer lugar</h3>
+
+            <!-- Subtitle -->
+            <p
+                style="font-size:0.82rem; color:var(--gray-300); text-align:center; line-height:1.5; margin-bottom:1.4rem; max-width:270px;">
+                Acesse o painel administrativo do Galpão do Cândido direto do seu celular, como um app — sem instalar
+                nada!
+            </p>
+
+            <!-- QR Code -->
+            <div style="background:white; border-radius:14px; padding:10px; margin-bottom:1rem;">
+                <img id="admin-qr-img" src="" alt="QR Code Admin" width="170" height="170"
+                    style="display:block; border-radius:8px;" loading="lazy">
+            </div>
+
+            <p style="font-size:0.72rem; color:var(--gray-400); text-align:center; margin-bottom:1.2rem;">Aponte a
+                câmera do celular para o QR code</p>
+
+            <!-- OS hints -->
+            <div
+                style="display:flex; flex-direction:column; gap:6px; width:100%; font-size:0.75rem; color:var(--gray-300);">
+                <div
+                    style="display:flex; align-items:center; gap:8px; background:var(--dark-4); border-radius:8px; padding:8px 10px;">
+                    <svg width="14" height="14" fill="var(--gray-400)" viewBox="0 0 24 24">
+                        <path
+                            d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+                    </svg>
+                    <span><strong>iPhone:</strong> Compartilhar → Adicionar à Tela de Início</span>
+                </div>
+                <div
+                    style="display:flex; align-items:center; gap:8px; background:var(--dark-4); border-radius:8px; padding:8px 10px;">
+                    <svg width="14" height="14" fill="var(--gray-400)" viewBox="0 0 24 24">
+                        <path
+                            d="m3.18 23.76 10.3-10.3L3.2.26C2.5.64 2 1.38 2 2.28v19.44c0 .9.5 1.64 1.18 2.04zm11.57-11.57L3.36 1.02 17.7 9.1l-2.95 3.09zM21 11.14l-2.9-1.67-3.21 3.21L18.1 15.7 21 14c.93-.54.93-1.86 0-2.86zM3.36 22.98l11.28-6.21-2.9-2.9-8.38 9.11z" />
+                    </svg>
+                    <span><strong>Android:</strong> Menu do navegador → Adicionar à tela inicial</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONFIRM DIALOG -->
+    <div class="confirm-backdrop" id="confirm-dialog">
+        <div class="confirm-box">
+            <div class="confirm-icon">🗑️</div>
+            <h3 class="confirm-title">Excluir produto?</h3>
+            <p class="confirm-msg" id="confirm-msg">Esta ação não pode ser desfeita.</p>
+            <div class="confirm-actions">
+                <button class="btn btn-secondary" id="confirm-cancel">Cancelar</button>
+                <button class="btn btn-danger" id="confirm-delete">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+    <!-- FAB (mobile only) -->
+    <button class="admin-fab" id="mob-fab-add" aria-label="Novo produto">
+        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+        </svg>
+    </button>
+
+    <!-- BOTTOM NAV (mobile only) -->
+    <nav class="mobile-bottom-nav" aria-label="Navegação móvel">
+        <button class="mob-nav-item active" id="mob-nav-products" data-page="products">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            Produtos
+        </button>
+        <button class="mob-nav-item" id="mob-nav-categories" data-page="categories">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+            Categorias
+        </button>
+        <button class="mob-nav-item" id="mob-nav-settings" data-page="settings">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Ajustes
+        </button>
+        <a class="mob-nav-item" href="/" target="_blank" rel="noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+            Loja
+        </a>
+    </nav>
+
+    <script src="/admin/js/admin.js"></script>
+</body>
+
+</html>
