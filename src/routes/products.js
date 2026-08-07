@@ -110,4 +110,71 @@ router.delete('/:id', requireAuth, (req, res) => {
     res.json({ success: true });
 });
 
+// POST /api/products/generate-details-ai — generate product subtitle and description based on title (admin only)
+router.post('/generate-details-ai', requireAuth, async (req, res) => {
+    const axios = require('axios');
+    const { title } = req.body;
+    if (!title || title.trim() === '') {
+        return res.status(400).json({ error: 'Título é obrigatório para gerar com IA.' });
+    }
+
+    const API_KEY = process.env.OPENROUTER_API_KEY;
+    if (!API_KEY) {
+        return res.status(500).json({ error: 'OPENROUTER_API_KEY não configurada no servidor.' });
+    }
+
+    const systemPrompt = `You are a professional copywriter for a premium furniture and decor store called "Galpão do Cândido".
+Your task is to generate an attractive subtitle and a detailed description in Portuguese (pt-BR) based on the product title provided.
+
+Format your response as a valid JSON object with the following fields:
+"subtitle": A short, catchy, marketing-focused one-sentence subtitle (max 10 words).
+"description": A sophisticated, descriptive paragraph highlighting the material, quality, style, and cozy feel of the product (max 60 words).
+
+Do NOT include markdown formatting like backticks (\`\`\`json) or any text other than the raw JSON object.
+
+Example Input: "Cadeira Charles Eames"
+Example Output:
+{"subtitle": "Design clássico com conforto incomparável para sua sala.", "description": "A Cadeira Charles Eames combina perfeitamente elegância e ergonomia. Confeccionada com materiais nobres, possui acabamento impecável em madeira moldada e estofamento em couro legítimo, ideal para dar um toque de sofisticação moderna ao seu escritório ou sala de estar."}`;
+
+    try {
+        const response = await axios.post(
+            'https://openrouter.ai/api/v1/chat/completions',
+            {
+                model: 'openai/gpt-3.5-turbo',
+                messages: [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: `Generate subtitle and description for product: "${title}"` }
+                ],
+                max_tokens: 300,
+                temperature: 0.7
+            },
+            {
+                headers: {
+                    'Authorization': `Bearer ${API_KEY}`,
+                    'Content-Type': 'application/json',
+                    'HTTP-Referer': 'http://localhost:3000',
+                    'X-Title': 'Galpao do Candido - Product AI Generator'
+                }
+            }
+        );
+
+        const content = response.data.choices[0].message.content.trim();
+        // Try parsing JSON. In case the model wrapped it, we try to clean it
+        let jsonStr = content;
+        if (jsonStr.includes('{')) {
+            jsonStr = jsonStr.substring(jsonStr.indexOf('{'), jsonStr.lastIndexOf('}') + 1);
+        }
+        
+        const details = JSON.parse(jsonStr);
+        res.json({
+            success: true,
+            subtitle: details.subtitle,
+            description: details.description
+        });
+    } catch (err) {
+        console.error('Erro ao gerar detalhes com IA:', err);
+        res.status(500).json({ error: `Erro na geração de IA: ${err.message}` });
+    }
+});
+
 module.exports = router;

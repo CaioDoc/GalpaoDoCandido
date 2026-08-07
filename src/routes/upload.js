@@ -113,4 +113,64 @@ router.post('/url', requireAuth, async (req, res) => {
     });
 });
 
+// GET /api/upload/google-drive/files — list files in the public Google Drive folder (admin only)
+router.get('/google-drive/files', requireAuth, async (req, res) => {
+    const puppeteer = require('puppeteer');
+    let browser;
+    try {
+        console.log('🔄 Acessando pasta pública do Google Drive com Puppeteer...');
+        browser = await puppeteer.launch({
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+        });
+        const page = await browser.newPage();
+        await page.setViewport({ width: 1280, height: 800 });
+
+        const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID || '1iTswiG7SzXccBR9r8kH2ks3lKCjs_EEY';
+        const url = `https://drive.google.com/drive/folders/${folderId}?usp=sharing`;
+
+        await page.goto(url, {
+            waitUntil: 'networkidle2',
+            timeout: 25000
+        });
+
+        // Wait a buffer time to allow dynamic list rendering
+        await new Promise(r => setTimeout(r, 4000));
+
+        // Evaluate to extract links
+        const files = await page.evaluate(() => {
+            const anchors = Array.from(document.querySelectorAll('a[href*="/file/d/"]'));
+            const list = anchors.map(a => {
+                const href = a.getAttribute('href');
+                const name = a.innerText || a.textContent || '';
+                const match = href.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+                return {
+                    id: match ? match[1] : null,
+                    name: name.trim(),
+                    url: href
+                };
+            }).filter(f => f.id);
+
+            // Deduplicate by ID
+            const unique = [];
+            const seen = new Set();
+            for (const f of list) {
+                if (!seen.has(f.id)) {
+                    seen.add(f.id);
+                    unique.push(f);
+                }
+            }
+            return unique;
+        });
+
+        await browser.close();
+        console.log(`✅ ${files.length} arquivos listados da pasta do Google Drive`);
+        res.json({ success: true, files });
+    } catch (err) {
+        if (browser) await browser.close();
+        console.error('Erro ao buscar arquivos do Google Drive:', err);
+        res.status(500).json({ error: `Erro ao conectar com o Google Drive: ${err.message}` });
+    }
+});
+
 module.exports = router;

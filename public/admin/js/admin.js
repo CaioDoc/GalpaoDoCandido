@@ -1411,6 +1411,78 @@ async function init() {
     document.getElementById('gp-message-generate-btn')?.addEventListener('click', generateGeneralPromoteMessage);
     document.getElementById('gp-promote-form')?.addEventListener('submit', handleGeneralPromoteSubmit);
 
+    // --- PRODUCT DETAIL GENERATION VIA IA ---
+    const btnGenerateAiDetails = document.getElementById('btn-generate-ai-details');
+    if (btnGenerateAiDetails) {
+        btnGenerateAiDetails.addEventListener('click', async () => {
+            const titleInput = document.getElementById('f-title');
+            const title = titleInput ? titleInput.value.trim() : '';
+            if (!title) {
+                showToast('Por favor, insira o título do produto primeiro.', 'error');
+                return;
+            }
+
+            const spinner = btnGenerateAiDetails.querySelector('.ai-details-spinner');
+            const textSpan = btnGenerateAiDetails.querySelector('span:not(.ai-details-spinner)');
+            const originalText = textSpan ? textSpan.textContent : 'Gerar com IA';
+
+            btnGenerateAiDetails.disabled = true;
+            if (spinner) spinner.style.display = 'inline-block';
+            if (textSpan) textSpan.textContent = 'Gerando...';
+
+            try {
+                const res = await fetch('/api/products/generate-details-ai', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title })
+                });
+
+                if (!res.ok) {
+                    const errData = await res.json();
+                    throw new Error(errData.error || 'Erro na geração de IA');
+                }
+
+                const data = await res.json();
+                if (data.success) {
+                    const subtitleInput = document.getElementById('f-subtitle');
+                    const descInput = document.getElementById('f-description');
+                    if (subtitleInput) subtitleInput.value = data.subtitle;
+                    if (descInput) descInput.value = data.description;
+                    showToast('Detalhes do produto gerados com sucesso!');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast(err.message, 'error');
+            } finally {
+                btnGenerateAiDetails.disabled = false;
+                if (spinner) spinner.style.display = 'none';
+                if (textSpan) textSpan.textContent = originalText;
+            }
+        });
+    }
+
+    // --- GOOGLE DRIVE PHOTO IMPORT ---
+    const btnOpenDrive = document.getElementById('btn-open-drive');
+    const driveGalleryContainer = document.getElementById('drive-gallery-container');
+    const btnRefreshDrive = document.getElementById('btn-refresh-drive');
+
+    if (btnOpenDrive) {
+        btnOpenDrive.addEventListener('click', async () => {
+            if (driveGalleryContainer.style.display === 'none') {
+                driveGalleryContainer.style.display = 'block';
+                await loadDriveFiles();
+            } else {
+                driveGalleryContainer.style.display = 'none';
+            }
+        });
+    }
+
+    if (btnRefreshDrive) {
+        btnRefreshDrive.addEventListener('click', async () => {
+            await loadDriveFiles();
+        });
+    }
+
     // Keyboard
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
@@ -1425,6 +1497,88 @@ async function init() {
     // Load data
     await loadCategories();
     await loadProducts();
+}
+
+async function loadDriveFiles() {
+    const grid = document.getElementById('drive-files-grid');
+    const status = document.getElementById('drive-files-status');
+    if (!grid || !status) return;
+
+    grid.innerHTML = '';
+    status.style.display = 'block';
+    status.textContent = 'Buscando fotos na pasta do Google Drive...';
+
+    try {
+        const res = await fetch('/api/upload/google-drive/files');
+        if (!res.ok) {
+            const errData = await res.json();
+            throw new Error(errData.error || 'Erro ao carregar arquivos');
+        }
+
+        const data = await res.json();
+        status.style.display = 'none';
+
+        if (data.success && data.files.length > 0) {
+            grid.innerHTML = data.files.map(file => {
+                const thumbUrl = `https://drive.google.com/thumbnail?id=${file.id}&w=150&h=150`;
+                return `
+                <div class="drive-item" style="border: 1px solid var(--dark-4); border-radius: 6px; padding: 6px; text-align: center; background: var(--dark-2); display: flex; flex-direction: column; justify-content: space-between; gap: 4px;">
+                    <img src="${thumbUrl}" alt="${file.name}" style="width: 100%; height: 70px; object-fit: cover; border-radius: 4px; background: #000;" />
+                    <span style="font-size: 0.65rem; color: var(--gray-300); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${file.name}">
+                        ${file.name}
+                    </span>
+                    <button type="button" class="btn btn-primary btn-import-drive" data-id="${file.id}" style="padding: 0.2rem 0.4rem; font-size: 0.65rem; width: 100%; border-radius: 4px;">
+                        Importar
+                    </button>
+                </div>`;
+            }).join('');
+
+            grid.querySelectorAll('.btn-import-drive').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const fileId = btn.dataset.id;
+                    await importDriveFile(fileId, btn);
+                });
+            });
+        } else {
+            status.style.display = 'block';
+            status.textContent = 'Nenhuma foto encontrada na pasta do Google Drive.';
+        }
+    } catch (err) {
+        console.error(err);
+        status.style.display = 'block';
+        status.textContent = `Falha ao carregar: ${err.message}`;
+    }
+}
+
+async function importDriveFile(fileId, buttonEl) {
+    const originalText = buttonEl.textContent;
+    buttonEl.disabled = true;
+    buttonEl.textContent = '⏳...';
+
+    try {
+        const driveDownloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+        const res = await fetch('/api/upload/url', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: driveDownloadUrl })
+        });
+
+        if (!res.ok) {
+            const errData = await res.json();
+            throw new Error(errData.error || 'Erro no download');
+        }
+
+        const data = await res.json();
+        pendingImages.push(data.url);
+        renderPreviews();
+        showToast('Foto importada com sucesso!');
+    } catch (err) {
+        console.error(err);
+        showToast(`Falha ao importar: ${err.message}`, 'error');
+    } finally {
+        buttonEl.disabled = false;
+        buttonEl.textContent = originalText;
+    }
 }
 
 document.addEventListener('DOMContentLoaded', init);
