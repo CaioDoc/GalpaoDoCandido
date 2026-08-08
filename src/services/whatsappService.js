@@ -13,12 +13,16 @@ class WhatsAppService {
     if (this.client) return;
 
     try {
-      const fs = require('fs');
+      const { execSync } = require('child_process');
       let chromiumPath = undefined;
-      if (fs.existsSync('/usr/bin/chromium')) {
-        chromiumPath = '/usr/bin/chromium';
-      } else if (fs.existsSync('/usr/bin/chromium-browser')) {
-        chromiumPath = '/usr/bin/chromium-browser';
+      try {
+        chromiumPath = execSync('which chromium').toString().trim();
+      } catch (e) {
+        try {
+          chromiumPath = execSync('which chromium-browser').toString().trim();
+        } catch (err2) {
+          // Fallback to default
+        }
       }
 
       this.client = new Client({

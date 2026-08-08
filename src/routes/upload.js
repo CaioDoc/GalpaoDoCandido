@@ -116,16 +116,20 @@ router.post('/url', requireAuth, async (req, res) => {
 // GET /api/upload/google-drive/files — list files in the public Google Drive folder (admin only)
 router.get('/google-drive/files', requireAuth, async (req, res) => {
     const puppeteer = require('puppeteer');
-    const fs = require('fs');
+    const { execSync } = require('child_process');
     let browser;
     try {
         console.log('🔄 Acessando pasta pública do Google Drive com Puppeteer...');
         
         let chromiumPath = undefined;
-        if (fs.existsSync('/usr/bin/chromium')) {
-            chromiumPath = '/usr/bin/chromium';
-        } else if (fs.existsSync('/usr/bin/chromium-browser')) {
-            chromiumPath = '/usr/bin/chromium-browser';
+        try {
+            chromiumPath = execSync('which chromium').toString().trim();
+        } catch (e) {
+            try {
+                chromiumPath = execSync('which chromium-browser').toString().trim();
+            } catch (err2) {
+                // Fallback to default
+            }
         }
 
         browser = await puppeteer.launch({
