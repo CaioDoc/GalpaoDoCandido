@@ -13,10 +13,19 @@ class WhatsAppService {
     if (this.client) return;
 
     try {
+      const fs = require('fs');
+      let chromiumPath = undefined;
+      if (fs.existsSync('/usr/bin/chromium')) {
+        chromiumPath = '/usr/bin/chromium';
+      } else if (fs.existsSync('/usr/bin/chromium-browser')) {
+        chromiumPath = '/usr/bin/chromium-browser';
+      }
+
       this.client = new Client({
         authStrategy: new LocalAuth({ dataPath: './whatsapp-session' }),
         puppeteer: { 
           headless: true, 
+          executablePath: chromiumPath,
           args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
         }
       });
