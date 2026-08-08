@@ -115,6 +115,46 @@ router.post('/url', requireAuth, async (req, res) => {
 
 // GET /api/upload/google-drive/files — list files in the public Google Drive folder (admin only)
 router.get('/google-drive/files', requireAuth, async (req, res) => {
+    const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID || '1iTswiG7SzXccBR9r8kH2ks3lKCjs_EEY';
+    const apiKey = process.env.GOOGLE_API_KEY;
+    const proxyUrl = process.env.GOOGLE_DRIVE_PROXY_URL;
+
+    // 1. Método Oficial: Google Drive API Key (Recomendado, rápido e sem Puppeteer)
+    if (apiKey) {
+        const axios = require('axios');
+        console.log('📡 Buscando arquivos do Google Drive usando chave de API oficial...');
+        try {
+            const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+mimeType+contains+'image/'+and+trashed=false&key=${apiKey}&fields=files(id,name,mimeType)`;
+            const response = await axios.get(url);
+            const files = response.data.files.map(f => ({
+                id: f.id,
+                name: f.name,
+                url: `https://drive.google.com/file/d/${f.id}`
+            }));
+            console.log(`✅ ${files.length} arquivos listados via API oficial do Google Drive`);
+            return res.json({ success: true, files });
+        } catch (apiErr) {
+            console.error('Erro ao buscar via API do Google Drive:', apiErr.response?.data || apiErr.message);
+            return res.status(500).json({ error: `Erro na API do Google Drive: ${apiErr.response?.data?.error?.message || apiErr.message}` });
+        }
+    }
+
+    // 2. Método Alternativo: Google Apps Script Web App Proxy (Fácil e gratuito)
+    if (proxyUrl) {
+        const axios = require('axios');
+        console.log('📡 Buscando arquivos do Google Drive usando link de proxy Google Apps Script...');
+        try {
+            const response = await axios.get(proxyUrl);
+            if (response.data && response.data.files) {
+                console.log(`✅ ${response.data.files.length} arquivos listados via Google Apps Script`);
+                return res.json({ success: true, files: response.data.files });
+            }
+        } catch (proxyErr) {
+            console.error('Erro ao buscar via proxy do Apps Script:', proxyErr.message);
+        }
+    }
+
+    // 3. Fallback: Puppeteer (Tenta rodar raspando, sujeito a erros se o contêiner não tiver dependências)
     const puppeteer = require('puppeteer');
     const fs = require('fs');
     const path = require('path');
@@ -123,7 +163,7 @@ router.get('/google-drive/files', requireAuth, async (req, res) => {
         console.log('🔄 Acessando pasta pública do Google Drive com Puppeteer...');
         
         let chromiumPath = undefined;
-        // 1. Check common absolute paths first
+        // Check common absolute paths first
         const commonPaths = ['/usr/bin/chromium', '/usr/bin/chromium-browser'];
         for (const p of commonPaths) {
             if (fs.existsSync(p)) {
@@ -132,10 +172,10 @@ router.get('/google-drive/files', requireAuth, async (req, res) => {
             }
         }
 
-        // 2. Check PATH environment variable dynamically
+        // Check PATH environment variable dynamically
         if (!chromiumPath) {
             const pathEnv = process.env.PATH || '';
-            const delimiter = path.delimiter; // ':' on Linux, ';' on Windows
+            const delimiter = path.delimiter;
             const dirs = pathEnv.split(delimiter);
             for (const dir of dirs) {
                 for (const name of ['chromium', 'chromium-browser']) {
@@ -202,7 +242,9 @@ router.get('/google-drive/files', requireAuth, async (req, res) => {
     } catch (err) {
         if (browser) await browser.close();
         console.error('Erro ao buscar arquivos do Google Drive:', err);
-        res.status(500).json({ error: `Erro ao conectar com o Google Drive: ${err.message}` });
+        res.status(500).json({ 
+            error: `Erro ao conectar com o Google Drive (Puppeteer): ${err.message}. Para resolver e carregar suas fotos sem depender de navegador no servidor, configure a variável GOOGLE_API_KEY no painel do Railway.` 
+        });
     }
 });
 
