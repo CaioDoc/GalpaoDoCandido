@@ -116,19 +116,38 @@ router.post('/url', requireAuth, async (req, res) => {
 // GET /api/upload/google-drive/files — list files in the public Google Drive folder (admin only)
 router.get('/google-drive/files', requireAuth, async (req, res) => {
     const puppeteer = require('puppeteer');
-    const { execSync } = require('child_process');
+    const fs = require('fs');
+    const path = require('path');
     let browser;
     try {
         console.log('🔄 Acessando pasta pública do Google Drive com Puppeteer...');
         
         let chromiumPath = undefined;
-        try {
-            chromiumPath = execSync('which chromium').toString().trim();
-        } catch (e) {
-            try {
-                chromiumPath = execSync('which chromium-browser').toString().trim();
-            } catch (err2) {
-                // Fallback to default
+        // 1. Check common absolute paths first
+        const commonPaths = ['/usr/bin/chromium', '/usr/bin/chromium-browser'];
+        for (const p of commonPaths) {
+            if (fs.existsSync(p)) {
+                chromiumPath = p;
+                break;
+            }
+        }
+
+        // 2. Check PATH environment variable dynamically
+        if (!chromiumPath) {
+            const pathEnv = process.env.PATH || '';
+            const delimiter = path.delimiter; // ':' on Linux, ';' on Windows
+            const dirs = pathEnv.split(delimiter);
+            for (const dir of dirs) {
+                for (const name of ['chromium', 'chromium-browser']) {
+                    const fullPath = path.join(dir, name);
+                    try {
+                        if (fs.existsSync(fullPath)) {
+                            chromiumPath = fullPath;
+                            break;
+                        }
+                    } catch (e) {}
+                }
+                if (chromiumPath) break;
             }
         }
 
