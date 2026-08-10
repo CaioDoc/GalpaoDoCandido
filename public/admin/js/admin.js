@@ -43,6 +43,7 @@ let promoteTargetId = null;
 let promotePollInterval = null;
 let generalPromoteImagePath = null;
 let generalPromotePollInterval = null;
+let driveFiles = [];
 
 // ── Format price ───────────────────────────────────────
 function formatPrice(v) {
@@ -1483,6 +1484,24 @@ async function init() {
         });
     }
 
+    const driveSearchInput = document.getElementById('drive-search-input');
+    const driveDateInput = document.getElementById('drive-date-input');
+    const driveSortSelect = document.getElementById('drive-sort-select');
+    const btnClearDriveFilters = document.getElementById('btn-clear-drive-filters');
+
+    if (driveSearchInput) driveSearchInput.addEventListener('input', renderDriveFilesList);
+    if (driveDateInput) driveDateInput.addEventListener('change', renderDriveFilesList);
+    if (driveSortSelect) driveSortSelect.addEventListener('change', renderDriveFilesList);
+    
+    if (btnClearDriveFilters) {
+        btnClearDriveFilters.addEventListener('click', () => {
+            if (driveSearchInput) driveSearchInput.value = '';
+            if (driveDateInput) driveDateInput.value = '';
+            if (driveSortSelect) driveSortSelect.value = 'newest';
+            renderDriveFilesList();
+        });
+    }
+
     // Keyboard
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
@@ -1500,13 +1519,14 @@ async function init() {
 }
 
 async function loadDriveFiles() {
-    const grid = document.getElementById('drive-files-grid');
     const status = document.getElementById('drive-files-status');
+    const grid = document.getElementById('drive-files-grid');
     if (!grid || !status) return;
 
     grid.innerHTML = '';
     status.style.display = 'block';
     status.textContent = 'Buscando fotos na pasta do Google Drive...';
+    driveFiles = []; // Reset local state
 
     try {
         const res = await fetch('/api/upload/google-drive/files');
@@ -1516,29 +1536,9 @@ async function loadDriveFiles() {
         }
 
         const data = await res.json();
-        status.style.display = 'none';
-
-        if (data.success && data.files.length > 0) {
-            grid.innerHTML = data.files.map(file => {
-                const thumbUrl = `https://drive.google.com/thumbnail?id=${file.id}&w=150&h=150`;
-                return `
-                <div class="drive-item" style="border: 1px solid var(--dark-4); border-radius: 6px; padding: 6px; text-align: center; background: var(--dark-2); display: flex; flex-direction: column; justify-content: space-between; gap: 4px;">
-                    <img src="${thumbUrl}" alt="${file.name}" style="width: 100%; height: 70px; object-fit: cover; border-radius: 4px; background: #000;" />
-                    <span style="font-size: 0.65rem; color: var(--gray-300); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${file.name}">
-                        ${file.name}
-                    </span>
-                    <button type="button" class="btn btn-primary btn-import-drive" data-id="${file.id}" style="padding: 0.2rem 0.4rem; font-size: 0.65rem; width: 100%; border-radius: 4px;">
-                        Importar
-                    </button>
-                </div>`;
-            }).join('');
-
-            grid.querySelectorAll('.btn-import-drive').forEach(btn => {
-                btn.addEventListener('click', async () => {
-                    const fileId = btn.dataset.id;
-                    await importDriveFile(fileId, btn);
-                });
-            });
+        if (data.success) {
+            driveFiles = data.files || [];
+            renderDriveFilesList();
         } else {
             status.style.display = 'block';
             status.textContent = 'Nenhuma foto encontrada na pasta do Google Drive.';
@@ -1547,6 +1547,79 @@ async function loadDriveFiles() {
         console.error(err);
         status.style.display = 'block';
         status.textContent = `Falha ao carregar: ${err.message}`;
+    }
+}
+
+function renderDriveFilesList() {
+    const grid = document.getElementById('drive-files-grid');
+    const status = document.getElementById('drive-files-status');
+    if (!grid || !status) return;
+
+    const searchQuery = document.getElementById('drive-search-input')?.value.toLowerCase().trim() || '';
+    const selectedDate = document.getElementById('drive-date-input')?.value || '';
+    const sortVal = document.getElementById('drive-sort-select')?.value || 'newest';
+
+    // 1. Filter
+    let filtered = [...driveFiles];
+
+    if (searchQuery) {
+        filtered = filtered.filter(file => file.name.toLowerCase().includes(searchQuery));
+    }
+
+    if (selectedDate) {
+        filtered = filtered.filter(file => {
+            if (!file.createdTime) return false;
+            return file.createdTime.startsWith(selectedDate);
+        });
+    }
+
+    // 2. Sort
+    filtered.sort((a, b) => {
+        if (sortVal === 'az') {
+            return a.name.localeCompare(b.name);
+        } else if (sortVal === 'za') {
+            return b.name.localeCompare(a.name);
+        } else if (sortVal === 'oldest') {
+            const dateA = a.createdTime ? new Date(a.createdTime) : new Date(0);
+            const dateB = b.createdTime ? new Date(b.createdTime) : new Date(0);
+            return dateA - dateB;
+        } else { // 'newest'
+            const dateA = a.createdTime ? new Date(a.createdTime) : new Date(0);
+            const dateB = b.createdTime ? new Date(b.createdTime) : new Date(0);
+            return dateB - dateA;
+        }
+    });
+
+    // 3. Render
+    grid.innerHTML = '';
+
+    if (filtered.length > 0) {
+        status.style.display = 'none';
+        grid.innerHTML = filtered.map(file => {
+            const thumbUrl = `https://drive.google.com/thumbnail?id=${file.id}&w=150&h=150`;
+            const dateFormatted = file.createdTime ? new Date(file.createdTime).toLocaleDateString('pt-BR') : '';
+            return `
+            <div class="drive-item" style="border: 1px solid var(--dark-4); border-radius: 6px; padding: 6px; text-align: center; background: var(--dark-2); display: flex; flex-direction: column; justify-content: space-between; gap: 4px;">
+                <img src="${thumbUrl}" alt="${file.name}" style="width: 100%; height: 70px; object-fit: cover; border-radius: 4px; background: #000;" />
+                <span style="font-size: 0.65rem; color: var(--gray-300); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${file.name}">
+                    ${file.name}
+                </span>
+                ${dateFormatted ? `<span style="font-size: 0.55rem; color: var(--gray-500); display: block; margin-top: -2px;">${dateFormatted}</span>` : ''}
+                <button type="button" class="btn btn-primary btn-import-drive" data-id="${file.id}" style="padding: 0.2rem 0.4rem; font-size: 0.65rem; width: 100%; border-radius: 4px; margin-top: 2px;">
+                    Importar
+                </button>
+            </div>`;
+        }).join('');
+
+        grid.querySelectorAll('.btn-import-drive').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const fileId = btn.dataset.id;
+                await importDriveFile(fileId, btn);
+            });
+        });
+    } else {
+        status.style.display = 'block';
+        status.textContent = driveFiles.length === 0 ? 'Nenhuma foto encontrada na pasta do Google Drive.' : 'Nenhuma foto corresponde aos filtros aplicados.';
     }
 }
 

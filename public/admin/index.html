@@ -359,6 +359,32 @@
                                         🔄 Atualizar
                                     </button>
                                 </div>
+                                
+                                <!-- Filters Row -->
+                                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
+                                    <!-- Search Input -->
+                                    <input type="text" id="drive-search-input" placeholder="🔍 Pesquisar por nome..." 
+                                        style="flex: 1; min-width: 150px; background: var(--dark-2); border: 1px solid var(--dark-4); border-radius: 4px; padding: 0.35rem 0.6rem; font-size: 0.75rem; color: var(--gray-100);" />
+                                    
+                                    <!-- Date Picker -->
+                                    <input type="date" id="drive-date-input" 
+                                        style="background: var(--dark-2); border: 1px solid var(--dark-4); border-radius: 4px; padding: 0.35rem 0.6rem; font-size: 0.75rem; color: var(--gray-100);" />
+                                    
+                                    <!-- Sort Select -->
+                                    <select id="drive-sort-select" 
+                                        style="background: var(--dark-2); border: 1px solid var(--dark-4); border-radius: 4px; padding: 0.35rem 0.6rem; font-size: 0.75rem; color: var(--gray-100); outline: none;">
+                                        <option value="newest">📅 Mais recentes</option>
+                                        <option value="oldest">📅 Mais antigas</option>
+                                        <option value="az">🔤 A-Z</option>
+                                        <option value="za">🔤 Z-A</option>
+                                    </select>
+                                    
+                                    <!-- Clear Filters Button -->
+                                    <button type="button" id="btn-clear-drive-filters" 
+                                        style="background: rgba(231, 76, 60, 0.15); color: var(--red-light); border: 1px solid rgba(231, 76, 60, 0.25); border-radius: 4px; padding: 0.35rem 0.6rem; font-size: 0.75rem; cursor: pointer; transition: all 0.2s ease;">
+                                        Limpar
+                                    </button>
+                                </div>
                                 <div id="drive-files-status" style="font-size: 0.75rem; color: var(--gray-400); text-align: center; padding: 1rem 0;">
                                     Carregando fotos do Drive...
                                 </div>

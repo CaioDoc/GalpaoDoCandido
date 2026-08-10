@@ -124,11 +124,12 @@ router.get('/google-drive/files', requireAuth, async (req, res) => {
         const axios = require('axios');
         console.log('📡 Buscando arquivos do Google Drive usando chave de API oficial...');
         try {
-            const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+mimeType+contains+'image/'+and+trashed=false&key=${apiKey}&fields=files(id,name,mimeType)`;
+            const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+mimeType+contains+'image/'+and+trashed=false&key=${apiKey}&fields=files(id,name,mimeType,createdTime)`;
             const response = await axios.get(url);
             const files = response.data.files.map(f => ({
                 id: f.id,
                 name: f.name,
+                createdTime: f.createdTime,
                 url: `https://drive.google.com/file/d/${f.id}`
             }));
             console.log(`✅ ${files.length} arquivos listados via API oficial do Google Drive`);
@@ -220,6 +221,7 @@ router.get('/google-drive/files', requireAuth, async (req, res) => {
                 return {
                     id: match ? match[1] : null,
                     name: name.trim(),
+                    createdTime: new Date().toISOString(),
                     url: href
                 };
             }).filter(f => f.id);
