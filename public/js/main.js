@@ -120,20 +120,35 @@ function renderHeroSlider() {
             `).join('');
 
             dotsContainer.querySelectorAll('.hero-dot-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     const idx = parseInt(btn.dataset.idx);
                     goToBanner(idx);
                 });
             });
         }
 
-        document.getElementById('hero-prev-btn')?.addEventListener('click', () => {
-            goToBanner((currentBannerIdx - 1 + storeBanners.length) % storeBanners.length);
-        });
+        const prevBtn = document.getElementById('hero-prev-btn');
+        const nextBtn = document.getElementById('hero-next-btn');
 
-        document.getElementById('hero-next-btn')?.addEventListener('click', () => {
-            goToBanner((currentBannerIdx + 1) % storeBanners.length);
-        });
+        if (prevBtn) {
+            prevBtn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const newIdx = (currentBannerIdx - 1 + storeBanners.length) % storeBanners.length;
+                goToBanner(newIdx);
+            };
+        }
+
+        if (nextBtn) {
+            nextBtn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const newIdx = (currentBannerIdx + 1) % storeBanners.length;
+                goToBanner(newIdx);
+            };
+        }
 
         startHeroAutoPlay();
     } else {
@@ -197,13 +212,13 @@ function updateHeroSlideContent(idx) {
 }
 
 function startHeroAutoPlay() {
-    if (heroSliderTimer) clearInterval(heroSliderTimer);
-    if (storeBanners.length > 1) {
-        heroSliderTimer = setInterval(() => {
-            currentBannerIdx = (currentBannerIdx + 1) % storeBanners.length;
-            goToBanner(currentBannerIdx);
-        }, 5000);
-    }
+    if (heroAutoPlayInterval) clearInterval(heroAutoPlayInterval);
+    if (storeBanners.length <= 1) return;
+
+    heroAutoPlayInterval = setInterval(() => {
+        const nextIdx = (currentBannerIdx + 1) % storeBanners.length;
+        goToBanner(nextIdx);
+    }, 5000);
 }
 
 // ── Product Card Builder ──────────────────────────────
@@ -492,11 +507,13 @@ function initContactButtons() {
 // ── Smooth scroll for anchor links ───────────────────
 function initSmoothScroll() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        const href = anchor.getAttribute('href');
+        if (href === '#contato' || anchor.id === 'header-contact-link') return;
         anchor.addEventListener('click', (e) => {
-            const target = document.querySelector(anchor.getAttribute('href'));
+            const target = document.querySelector(href);
             if (target) {
                 e.preventDefault();
-                const offset = 80; // header height
+                const offset = 80;
                 const top = target.getBoundingClientRect().top + window.scrollY - offset;
                 window.scrollTo({ top, behavior: 'smooth' });
             }
@@ -701,9 +718,10 @@ function initContactDrawer() {
     const previewContainer = document.getElementById('contact-image-preview-container');
     const previewImg = document.getElementById('contact-image-preview');
 
-    document.querySelectorAll('a[href="#contato"], button[data-action="contact"]').forEach(el => {
+    document.querySelectorAll('a[href="#contato"], #header-contact-link, button[data-action="contact"]').forEach(el => {
         el.addEventListener('click', (e) => {
             e.preventDefault();
+            e.stopPropagation();
             openContactDrawer();
         });
     });

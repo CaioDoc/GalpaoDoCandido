@@ -120,7 +120,7 @@
           <nav class="hidden md:flex items-center gap-8">
             <a class="text-sm font-semibold hover:text-primary transition-colors" href="#catalogo">Catálogo</a>
             <a class="text-sm font-semibold hover:text-primary transition-colors" href="#sobre">Sobre</a>
-            <a class="text-sm font-semibold hover:text-primary transition-colors" href="#contato">Contato</a>
+            <a id="header-contact-link" class="text-sm font-semibold hover:text-primary transition-colors cursor-pointer" href="#contato">Contato</a>
             <button id="app-drawer-btn"
               class="text-sm font-semibold hover:text-primary transition-colors flex items-center gap-1.5">
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24"
@@ -193,14 +193,14 @@
           </div>
 
           <!-- Carousel Controls (Prev/Next & Dots) -->
-          <div id="hero-controls" class="hidden">
+          <div id="hero-controls" style="display: none;">
             <!-- Prev Arrow -->
-            <button id="hero-prev-btn" type="button" aria-label="Banner Anterior" class="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur transition-all border border-white/10 opacity-80 hover:opacity-100 cursor-pointer">
-              <span class="material-symbols-outlined">chevron_left</span>
+            <button id="hero-prev-btn" type="button" aria-label="Banner Anterior" class="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur transition-all border border-white/20 opacity-90 hover:opacity-100 cursor-pointer shadow-lg">
+              <span class="material-symbols-outlined text-2xl">chevron_left</span>
             </button>
             <!-- Next Arrow -->
-            <button id="hero-next-btn" type="button" aria-label="Próximo Banner" class="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur transition-all border border-white/10 opacity-80 hover:opacity-100 cursor-pointer">
-              <span class="material-symbols-outlined">chevron_right</span>
+            <button id="hero-next-btn" type="button" aria-label="Próximo Banner" class="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur transition-all border border-white/20 opacity-90 hover:opacity-100 cursor-pointer shadow-lg">
+              <span class="material-symbols-outlined text-2xl">chevron_right</span>
             </button>
             <!-- Navigation Dots -->
             <div id="hero-dots-container" class="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2">
@@ -280,7 +280,7 @@
       </section>
 
       <!-- ═══ CONTATO ═══ -->
-      <section id="contato" class="py-16 bg-slate-900 text-white">
+      <section id="contato-info-section" class="py-16 bg-slate-900 text-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <span class="text-primary font-bold tracking-widest uppercase text-sm">Fale conosco</span>
           <h3 class="text-3xl lg:text-4xl font-black mt-2 mb-4">Tem interesse em alguma peça?</h3>
