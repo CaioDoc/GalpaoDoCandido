@@ -44,6 +44,7 @@ let promotePollInterval = null;
 let generalPromoteImagePath = null;
 let generalPromotePollInterval = null;
 let driveFiles = [];
+let heroBanners = [];
 
 // ── Format price ───────────────────────────────────────
 function formatPrice(v) {
