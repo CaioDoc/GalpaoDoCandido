@@ -271,76 +271,304 @@ async function removeCategory(id, name) {
     }
 }
 
-// ── Settings (Banner) ──────────────────────────────────
+// ── Settings (Hero Banners Slider Manager) ───────────────────────
 async function loadSettings() {
     try {
         const res = await fetch('/api/settings');
         const settings = await res.json();
-        const bannerUrl = settings.banner_url || '';
-
-        const previewImg = document.getElementById('banner-preview-img');
-        const emptyText = document.getElementById('banner-preview-empty');
-        const removeBtn = document.getElementById('banner-remove-btn');
-
-        if (bannerUrl) {
-            previewImg.src = bannerUrl;
-            previewImg.style.display = 'block';
-            emptyText.style.display = 'none';
-            removeBtn.style.display = 'inline-block';
+        
+        if (settings.parsed_banners && Array.isArray(settings.parsed_banners)) {
+            heroBanners = settings.parsed_banners;
+        } else if (settings.hero_banners) {
+            try {
+                heroBanners = JSON.parse(settings.hero_banners);
+            } catch (e) {
+                heroBanners = [];
+            }
         } else {
-            previewImg.src = '';
-            previewImg.style.display = 'none';
-            emptyText.style.display = 'block';
-            removeBtn.style.display = 'none';
+            heroBanners = [];
         }
+
+        renderAdminHeroBanners();
     } catch {
-        showToast('Erro ao carregar configurações.', 'error');
+        showToast('Erro ao carregar configurações de banners.', 'error');
     }
 }
 
-async function uploadBanner(file) {
-    const overlay = document.getElementById('banner-upload-overlay');
-    overlay.style.display = 'flex';
+function renderAdminHeroBanners() {
+    const listEl = document.getElementById('hero-banners-admin-list');
+    if (!listEl) return;
+
+    if (!heroBanners || heroBanners.length === 0) {
+        listEl.innerHTML = `
+        <div style="text-align:center; padding: 2rem; background: var(--dark-2); border: 1px dashed var(--dark-4); border-radius: 8px;">
+            <p style="color: var(--gray-300); margin-bottom: 0.75rem; font-size: 0.9rem;">Nenhum banner personalizado configurado ainda.</p>
+            <button type="button" class="btn btn-secondary" onclick="addHeroBanner()" style="background: rgba(124, 77, 255, 0.15); color: #a485ff; border: 1px solid rgba(124, 77, 255, 0.3); font-size: 0.8rem;">
+                ➕ Criar Primeiro Banner
+            </button>
+        </div>`;
+        return;
+    }
+
+    listEl.innerHTML = heroBanners.map((banner, bIdx) => {
+        const buttonsHtml = (banner.buttons || []).map((btn, btnIdx) => `
+            <div class="banner-btn-item" style="display: flex; gap: 0.5rem; align-items: center; background: var(--dark-2); padding: 0.5rem; border-radius: 6px; border: 1px solid var(--dark-4); flex-wrap: wrap;">
+                <div style="flex: 2; min-width: 130px;">
+                    <label style="font-size: 0.65rem; color: var(--gray-400); display: block;">Texto do Botão</label>
+                    <input type="text" class="form-input btn-text-input" data-bidx="${bIdx}" data-btnidx="${btnIdx}" value="${btn.text || ''}" placeholder="Ex: Explorar Catálogo" style="font-size: 0.75rem; padding: 0.3rem 0.5rem;" />
+                </div>
+                <div style="flex: 1.5; min-width: 120px;">
+                    <label style="font-size: 0.65rem; color: var(--gray-400); display: block;">Estilo do Botão</label>
+                    <select class="form-input form-select btn-type-select" data-bidx="${bIdx}" data-btnidx="${btnIdx}" style="font-size: 0.75rem; padding: 0.3rem 0.5rem;">
+                        <option value="default" ${btn.type === 'default' ? 'selected' : ''}>Default (Amarelo)</option>
+                        <option value="secondary" ${btn.type === 'secondary' ? 'selected' : ''}>Secondary (Transparente)</option>
+                    </select>
+                </div>
+                <div style="flex: 2; min-width: 140px;">
+                    <label style="font-size: 0.65rem; color: var(--gray-400); display: block;">Link de Destino</label>
+                    <input type="text" class="form-input btn-link-input" data-bidx="${bIdx}" data-btnidx="${btnIdx}" value="${btn.link || ''}" placeholder="Ex: #catalogo ou https://..." style="font-size: 0.75rem; padding: 0.3rem 0.5rem;" />
+                </div>
+                <button type="button" class="btn-remove-action-btn" data-bidx="${bIdx}" data-btnidx="${btnIdx}" style="background: rgba(231, 76, 60, 0.15); color: var(--red-light); border: 1px solid rgba(231, 76, 60, 0.3); padding: 0.35rem 0.5rem; border-radius: 4px; cursor: pointer; font-size: 0.75rem; margin-top: 0.8rem;" title="Remover Botão">
+                    🗑️
+                </button>
+            </div>
+        `).join('');
+
+        const previewImg = banner.imageUrl 
+            ? `<img src="${banner.imageUrl}" style="width: 100%; height: 100%; object-fit: cover;" />`
+            : `<span style="font-size: 0.75rem; color: var(--gray-400);">Sem imagem</span>`;
+
+        return `
+        <div class="hero-banner-admin-card" data-bidx="${bIdx}" style="background: var(--dark-2); border: 1px solid var(--dark-4); border-radius: 8px; padding: 1.2rem; display: flex; flex-direction: column; gap: 1rem;">
+            <!-- Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--dark-4); padding-bottom: 0.6rem;">
+                <span style="font-weight: 700; font-size: 0.9rem; color: var(--purple-light);">
+                    Banner #${bIdx + 1} — ${banner.title ? banner.title.substring(0, 30) : 'Sem título'}
+                </span>
+                <button type="button" class="btn-delete-banner-slide" data-bidx="${bIdx}" style="background: rgba(231, 76, 60, 0.15); color: var(--red-light); border: 1px solid rgba(231, 76, 60, 0.3); font-size: 0.75rem; padding: 0.3rem 0.6rem; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 0.2rem;">
+                    🗑️ Deletar Banner
+                </button>
+            </div>
+
+            <!-- Content Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
+                <!-- Image Section -->
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <label style="font-size: 0.75rem; font-weight: 600; color: var(--gray-300);">Imagem de Fundo (16:9)</label>
+                    <div style="width: 100%; aspect-ratio: 16/9; background: var(--dark-4); border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative;">
+                        ${previewImg}
+                    </div>
+                    <div style="display: flex; gap: 0.4rem; align-items: center;">
+                        <input type="text" class="form-input banner-img-url-input" data-bidx="${bIdx}" value="${banner.imageUrl || ''}" placeholder="URL da imagem (http...)" style="font-size: 0.75rem; padding: 0.35rem 0.5rem; flex: 1;" />
+                        <label class="btn btn-secondary" style="font-size: 0.7rem; padding: 0.35rem 0.6rem; cursor: pointer; margin: 0; white-space: nowrap;">
+                            📁 Upload
+                            <input type="file" class="banner-file-upload-input" data-bidx="${bIdx}" accept="image/*" style="display:none;" />
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Text Fields Section -->
+                <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                    <div>
+                        <label style="font-size: 0.75rem; font-weight: 600; color: var(--gray-300);">Tag (Eyebrow)</label>
+                        <input type="text" class="form-input banner-tag-input" data-bidx="${bIdx}" value="${banner.tag || ''}" placeholder="Ex: COLEÇÃO EXCLUSIVA" style="font-size: 0.8rem; padding: 0.4rem 0.6rem;" />
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem; font-weight: 600; color: var(--gray-300);">Título Principal</label>
+                        <input type="text" class="form-input banner-title-input" data-bidx="${bIdx}" value="${banner.title || ''}" placeholder="Ex: Móveis de Luxo & Design Atemporal" style="font-size: 0.8rem; padding: 0.4rem 0.6rem;" />
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem; font-weight: 600; color: var(--gray-300);">Subtítulo / Descrição</label>
+                        <textarea class="form-textarea banner-subtitle-input" data-bidx="${bIdx}" placeholder="Ex: Transforme seu ambiente com a sofisticação de peças selecionadas à mão." style="font-size: 0.8rem; padding: 0.4rem 0.6rem; height: 60px; min-height: 60px;">${banner.subtitle || ''}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Buttons Section -->
+            <div style="background: var(--dark-3); padding: 0.75rem; border-radius: 6px; border: 1px solid var(--dark-4);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+                    <span style="font-size: 0.8rem; font-weight: 600; color: var(--gray-200);">Botões de Ação</span>
+                    <button type="button" class="btn-add-action-btn" data-bidx="${bIdx}" style="background: rgba(124, 77, 255, 0.15); color: #a485ff; border: 1px solid rgba(124, 77, 255, 0.3); font-size: 0.7rem; padding: 0.25rem 0.5rem; border-radius: 4px; cursor: pointer;">
+                        ➕ Adicionar Botão
+                    </button>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    ${buttonsHtml || '<p style="font-size: 0.75rem; color: var(--gray-400); margin: 0;">Nenhum botão adicionado a este banner.</p>'}
+                </div>
+            </div>
+        </div>
+        `;
+    }).join('');
+
+    attachAdminHeroBannersListeners();
+}
+
+function attachAdminHeroBannersListeners() {
+    const listEl = document.getElementById('hero-banners-admin-list');
+    if (!listEl) return;
+
+    listEl.querySelectorAll('.banner-tag-input').forEach(input => {
+        input.addEventListener('input', (e) => {
+            const bIdx = parseInt(e.target.dataset.bidx);
+            if (heroBanners[bIdx]) heroBanners[bIdx].tag = e.target.value;
+        });
+    });
+
+    listEl.querySelectorAll('.banner-title-input').forEach(input => {
+        input.addEventListener('input', (e) => {
+            const bIdx = parseInt(e.target.dataset.bidx);
+            if (heroBanners[bIdx]) heroBanners[bIdx].title = e.target.value;
+        });
+    });
+
+    listEl.querySelectorAll('.banner-subtitle-input').forEach(input => {
+        input.addEventListener('input', (e) => {
+            const bIdx = parseInt(e.target.dataset.bidx);
+            if (heroBanners[bIdx]) heroBanners[bIdx].subtitle = e.target.value;
+        });
+    });
+
+    listEl.querySelectorAll('.banner-img-url-input').forEach(input => {
+        input.addEventListener('input', (e) => {
+            const bIdx = parseInt(e.target.dataset.bidx);
+            if (heroBanners[bIdx]) {
+                heroBanners[bIdx].imageUrl = e.target.value;
+                const card = e.target.closest('.hero-banner-admin-card');
+                const previewContainer = card.querySelector('div[style*="aspect-ratio"]');
+                if (previewContainer) {
+                    previewContainer.innerHTML = e.target.value 
+                        ? `<img src="${e.target.value}" style="width: 100%; height: 100%; object-fit: cover;" />`
+                        : `<span style="font-size: 0.75rem; color: var(--gray-400);">Sem imagem</span>`;
+                }
+            }
+        });
+    });
+
+    listEl.querySelectorAll('.banner-file-upload-input').forEach(input => {
+        input.addEventListener('change', async (e) => {
+            const bIdx = parseInt(e.target.dataset.bidx);
+            const file = e.target.files[0];
+            if (!file) return;
+
+            try {
+                showToast('Enviando imagem do banner...');
+                const formData = new FormData();
+                formData.append('image', file);
+
+                const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                if (!res.ok) throw new Error('Erro no upload');
+
+                const { url } = await res.json();
+                if (heroBanners[bIdx]) {
+                    heroBanners[bIdx].imageUrl = url;
+                    renderAdminHeroBanners();
+                    showToast('Imagem do banner atualizada!');
+                }
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        });
+    });
+
+    listEl.querySelectorAll('.btn-delete-banner-slide').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const bIdx = parseInt(btn.dataset.bidx);
+            heroBanners.splice(bIdx, 1);
+            renderAdminHeroBanners();
+        });
+    });
+
+    listEl.querySelectorAll('.btn-text-input').forEach(input => {
+        input.addEventListener('input', (e) => {
+            const bIdx = parseInt(e.target.dataset.bidx);
+            const btnIdx = parseInt(e.target.dataset.btnidx);
+            if (heroBanners[bIdx] && heroBanners[bIdx].buttons[btnIdx]) {
+                heroBanners[bIdx].buttons[btnIdx].text = e.target.value;
+            }
+        });
+    });
+
+    listEl.querySelectorAll('.btn-type-select').forEach(select => {
+        select.addEventListener('change', (e) => {
+            const bIdx = parseInt(e.target.dataset.bidx);
+            const btnIdx = parseInt(e.target.dataset.btnidx);
+            if (heroBanners[bIdx] && heroBanners[bIdx].buttons[btnIdx]) {
+                heroBanners[bIdx].buttons[btnIdx].type = e.target.value;
+            }
+        });
+    });
+
+    listEl.querySelectorAll('.btn-link-input').forEach(input => {
+        input.addEventListener('input', (e) => {
+            const bIdx = parseInt(e.target.dataset.bidx);
+            const btnIdx = parseInt(e.target.dataset.btnidx);
+            if (heroBanners[bIdx] && heroBanners[bIdx].buttons[btnIdx]) {
+                heroBanners[bIdx].buttons[btnIdx].link = e.target.value;
+            }
+        });
+    });
+
+    listEl.querySelectorAll('.btn-remove-action-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const bIdx = parseInt(btn.dataset.bidx);
+            const btnIdx = parseInt(btn.dataset.btnidx);
+            if (heroBanners[bIdx] && heroBanners[bIdx].buttons) {
+                heroBanners[bIdx].buttons.splice(btnIdx, 1);
+                renderAdminHeroBanners();
+            }
+        });
+    });
+
+    listEl.querySelectorAll('.btn-add-action-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const bIdx = parseInt(btn.dataset.bidx);
+            if (heroBanners[bIdx]) {
+                if (!heroBanners[bIdx].buttons) heroBanners[bIdx].buttons = [];
+                heroBanners[bIdx].buttons.push({
+                    text: 'Novo Botão',
+                    type: 'default',
+                    link: '#catalogo'
+                });
+                renderAdminHeroBanners();
+            }
+        });
+    });
+}
+
+function addHeroBanner() {
+    heroBanners.push({
+        id: 'banner-' + Date.now(),
+        tag: 'NOVA COLEÇÃO',
+        title: 'Móveis de Luxo & Design Atemporal',
+        subtitle: 'Transforme seu ambiente com a sofisticação de peças selecionadas à mão.',
+        imageUrl: '',
+        buttons: [
+            { text: 'Explorar Catálogo', type: 'default', link: '#catalogo' },
+            { text: 'Falar com Vendedor', type: 'secondary', link: 'https://wa.me/5519996146549' }
+        ]
+    });
+    renderAdminHeroBanners();
+}
+
+async function saveHeroBanners() {
+    const btn = document.getElementById('btn-save-hero-banners');
+    if (btn) btn.disabled = true;
 
     try {
-        const formData = new FormData();
-        formData.append('image', file);
-
-        const resUpload = await fetch('/api/upload', { method: 'POST', body: formData });
-        if (!resUpload.ok) throw new Error('Erro ao fazer upload da imagem.');
-
-        const { url } = await resUpload.json();
-
-        const resSave = await fetch('/api/settings/banner', {
+        const res = await fetch('/api/settings/hero-banners', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url })
+            body: JSON.stringify({ banners: heroBanners })
         });
 
-        if (!resSave.ok) throw new Error('Erro ao salvar configuração do banner.');
+        if (!res.ok) throw new Error('Erro ao salvar banners.');
 
-        showToast('Banner atualizado com sucesso!');
+        showToast('Banners principais salvos com sucesso!');
         loadSettings();
     } catch (err) {
         showToast(err.message, 'error');
     } finally {
-        overlay.style.display = 'none';
-    }
-}
-
-async function removeBanner() {
-    try {
-        const res = await fetch('/api/settings/banner', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: '' })
-        });
-        if (!res.ok) throw new Error('Erro ao remover banner.');
-
-        showToast('Banner removido. O sistema usará o padrão.');
-        loadSettings();
-    } catch (err) {
-        showToast(err.message, 'error');
+        if (btn) btn.disabled = false;
     }
 }
 
@@ -1513,9 +1741,14 @@ async function init() {
         }
     });
 
+    // Hero Banner Manager Listeners
+    document.getElementById('btn-add-hero-banner')?.addEventListener('click', addHeroBanner);
+    document.getElementById('btn-save-hero-banners')?.addEventListener('click', saveHeroBanners);
+
     // Load data
     await loadCategories();
     await loadProducts();
+    await loadSettings();
 }
 
 async function loadDriveFiles() {

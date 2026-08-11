@@ -69,82 +69,141 @@ async function loadProducts() {
     }
 }
 
-// ── Hero Carousel ─────────────────────────────────────
-function initHero() {
-    heroProducts = featuredProducts.length > 0 ? featuredProducts : allProducts.slice(0, 5);
-    if (heroProducts.length === 0) return;
+// ── Hero Carousel (Dynamic Banners) ─────────────────────
+let storeBanners = [];
+let currentBannerIdx = 0;
+let heroSliderTimer = null;
 
-    const slidesEl = document.getElementById('hero-slides');
-    const dotsEl = document.getElementById('hero-dots');
+async function loadHeroBanners() {
+    try {
+        const res = await fetch('/api/settings');
+        if (res.ok) {
+            const settings = await res.json();
+            if (settings.parsed_banners && Array.isArray(settings.parsed_banners) && settings.parsed_banners.length > 0) {
+                storeBanners = settings.parsed_banners;
+            } else if (settings.hero_banners) {
+                storeBanners = JSON.parse(settings.hero_banners);
+            }
+        }
+    } catch (e) {
+        console.warn('Erro ao carregar configurações de banners, usando padrão.', e);
+    }
 
-    // Build slides
-    slidesEl.innerHTML = heroProducts.map((p, i) => {
-        const img = getFirstImage(p);
-        const imgHtml = img
-            ? `<img class="hero-slide-img" src="${img}" alt="${p.title}" loading="${i === 0 ? 'eager' : 'lazy'}">`
-            : `<div class="hero-slide-placeholder"></div>`;
-        return `<div class="hero-slide${i === 0 ? ' active' : ''}" data-index="${i}">${imgHtml}</div>`;
-    }).join('');
+    if (!storeBanners || storeBanners.length === 0) {
+        storeBanners = [
+            {
+                id: 'default-1',
+                tag: 'COLEÇÃO EXCLUSIVA',
+                title: 'Móveis de Luxo & Design Atemporal',
+                subtitle: 'Transforme seu ambiente com a sofisticação de peças selecionadas à mão.',
+                imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAvAAN1NYELrbPLEreymiDA3OOKNsrELf3jHiCj2XHPqEBke9mUS5zbtQdR55Sm0V7jLLsFvZigJVFmzp2zeStmiSOtW61yeJ9hZ8_Pb-F-JxXHteXRDU3BdUeY5Wxk0TBVlE5fKWtFJZddxRbZoQPySNwe6yBA9bEAeripeIMdxoPKn3MuKec65M58Uh-qproteVwhUBjmnGk2TQsklIc4k7IW6hcQyxwsAIRiC0fZw794BKH2NXoyiXTl9FKHcJkQWXURgJGWWsHM',
+                buttons: [
+                    { text: 'Explorar Catálogo', type: 'default', link: '#catalogo' },
+                    { text: 'Falar com Vendedor', type: 'secondary', link: 'https://wa.me/5519996146549' }
+                ]
+            }
+        ];
+    }
 
-    // Build dots
-    dotsEl.innerHTML = heroProducts.map((_, i) =>
-        `<button class="hero-dot${i === 0 ? ' active' : ''}" role="tab" aria-label="Slide ${i + 1}" aria-selected="${i === 0}" data-index="${i}"></button>`
-    ).join('');
-
-    updateHeroContent(0);
-
-    // Dot clicks
-    dotsEl.querySelectorAll('.hero-dot').forEach(dot => {
-        dot.addEventListener('click', () => goToSlide(parseInt(dot.dataset.index)));
-    });
-
-    // Arrow clicks
-    document.getElementById('hero-prev').addEventListener('click', () => {
-        goToSlide((heroIndex - 1 + heroProducts.length) % heroProducts.length);
-    });
-    document.getElementById('hero-next').addEventListener('click', () => {
-        goToSlide((heroIndex + 1) % heroProducts.length);
-    });
-
-    // Hero WhatsApp button
-    document.getElementById('hero-whatsapp-btn').addEventListener('click', () => {
-        window.open(buildWhatsAppUrl(heroProducts[heroIndex]), '_blank');
-    });
-
-    startHeroTimer();
+    renderHeroSlider();
 }
 
-function goToSlide(index) {
-    const slides = document.querySelectorAll('.hero-slide');
-    const dots = document.querySelectorAll('.hero-dot');
+function renderHeroSlider() {
+    const controls = document.getElementById('hero-controls');
+    const dotsContainer = document.getElementById('hero-dots-container');
 
-    slides[heroIndex].classList.remove('active');
-    dots[heroIndex].classList.remove('active');
-    dots[heroIndex].setAttribute('aria-selected', 'false');
+    if (storeBanners.length > 1) {
+        if (controls) controls.style.display = 'block';
+        if (dotsContainer) {
+            dotsContainer.innerHTML = storeBanners.map((_, idx) => `
+                <button type="button" class="hero-dot-btn w-2.5 h-2.5 rounded-full transition-all cursor-pointer ${idx === 0 ? 'bg-primary w-6' : 'bg-white/50 hover:bg-white'}" data-idx="${idx}" aria-label="Banner ${idx + 1}"></button>
+            `).join('');
 
-    heroIndex = index;
+            dotsContainer.querySelectorAll('.hero-dot-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const idx = parseInt(btn.dataset.idx);
+                    goToBanner(idx);
+                });
+            });
+        }
 
-    slides[heroIndex].classList.add('active');
-    dots[heroIndex].classList.add('active');
-    dots[heroIndex].setAttribute('aria-selected', 'true');
+        document.getElementById('hero-prev-btn')?.addEventListener('click', () => {
+            goToBanner((currentBannerIdx - 1 + storeBanners.length) % storeBanners.length);
+        });
 
-    updateHeroContent(heroIndex);
-    startHeroTimer();
+        document.getElementById('hero-next-btn')?.addEventListener('click', () => {
+            goToBanner((currentBannerIdx + 1) % storeBanners.length);
+        });
+
+        startHeroAutoPlay();
+    } else {
+        if (controls) controls.style.display = 'none';
+    }
+
+    updateHeroSlideContent(0);
 }
 
-function updateHeroContent(index) {
-    const p = heroProducts[index];
-    document.getElementById('hero-eyebrow').textContent = p.category;
-    document.getElementById('hero-title').textContent = p.title;
-    document.getElementById('hero-subtitle').textContent = p.subtitle || p.description?.substring(0, 100) + '...' || '';
-    document.getElementById('hero-price').textContent = formatPrice(p.price);
+function goToBanner(idx) {
+    currentBannerIdx = idx;
+    updateHeroSlideContent(idx);
+
+    const dots = document.querySelectorAll('.hero-dot-btn');
+    dots.forEach((dot, dIdx) => {
+        if (dIdx === idx) {
+            dot.className = 'hero-dot-btn w-6 h-2.5 rounded-full transition-all cursor-pointer bg-primary';
+        } else {
+            dot.className = 'hero-dot-btn w-2.5 h-2.5 rounded-full transition-all cursor-pointer bg-white/50 hover:bg-white';
+        }
+    });
+
+    startHeroAutoPlay();
 }
 
-function startHeroTimer() {
-    if (heroTimer) clearInterval(heroTimer);
-    heroTimer = setInterval(() => {
-        goToSlide((heroIndex + 1) % heroProducts.length);
-    }, 5000);
+function updateHeroSlideContent(idx) {
+    const banner = storeBanners[idx];
+    if (!banner) return;
+
+    const bgEl = document.getElementById('hero-bg');
+    const tagEl = document.getElementById('hero-tag');
+    const titleEl = document.getElementById('hero-title');
+    const subtitleEl = document.getElementById('hero-subtitle');
+    const buttonsContainer = document.getElementById('hero-buttons-container');
+
+    if (bgEl && banner.imageUrl) {
+        bgEl.style.backgroundImage = `linear-gradient(to right, rgba(0,0,0,0.8), rgba(0,0,0,0.35)), url('${banner.imageUrl}')`;
+    }
+
+    if (tagEl) tagEl.textContent = banner.tag || '';
+    if (titleEl) titleEl.textContent = banner.title || '';
+    if (subtitleEl) subtitleEl.textContent = banner.subtitle || '';
+
+    if (buttonsContainer && Array.isArray(banner.buttons)) {
+        buttonsContainer.innerHTML = banner.buttons.map(btn => {
+            const isSecondary = btn.type === 'secondary';
+            const btnClasses = isSecondary
+                ? 'bg-white/10 backdrop-blur hover:bg-white/20 text-white px-6 py-2.5 rounded-lg font-bold transition-all text-sm flex items-center justify-center gap-2 border border-white/20'
+                : 'bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-lg font-bold transition-all shadow-lg shadow-primary/30 text-sm text-center';
+            
+            const isExternal = btn.link && (btn.link.startsWith('http') || btn.link.startsWith('//'));
+            const targetAttr = isExternal ? 'target="_blank" rel="noopener noreferrer"' : '';
+
+            const waIcon = btn.link && btn.link.includes('wa.me') ? waIconSvg(15) : '';
+
+            return `<a href="${btn.link || '#'}" ${targetAttr} class="${btnClasses}">
+                ${waIcon} ${btn.text || 'Saiba Mais'}
+            </a>`;
+        }).join('');
+    }
+}
+
+function startHeroAutoPlay() {
+    if (heroSliderTimer) clearInterval(heroSliderTimer);
+    if (storeBanners.length > 1) {
+        heroSliderTimer = setInterval(() => {
+            currentBannerIdx = (currentBannerIdx + 1) % storeBanners.length;
+            goToBanner(currentBannerIdx);
+        }, 5000);
+    }
 }
 
 // ── Product Card Builder ──────────────────────────────
@@ -603,8 +662,8 @@ async function init() {
     initContactButtons();
 
     await loadProducts();
+    await loadHeroBanners();
 
-    initHero();
     renderNovidades();
     renderTabs();
     renderCatalogGrid();

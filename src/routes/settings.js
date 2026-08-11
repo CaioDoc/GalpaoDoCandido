@@ -12,16 +12,66 @@ router.get('/', (req, res) => {
     rows.forEach(row => {
         settings[row.key] = row.value;
     });
+
+    let banners = [];
+    if (settings.hero_banners) {
+        try {
+            banners = JSON.parse(settings.hero_banners);
+        } catch (e) {
+            banners = [];
+        }
+    }
+
+    if (!banners || banners.length === 0) {
+        const defaultBannerUrl = settings.banner_url || "https://lh3.googleusercontent.com/aida-public/AB6AXuAvAAN1NYELrbPLEreymiDA3OOKNsrELf3jHiCj2XHPqEBke9mUS5zbtQdR55Sm0V7jLLsFvZigJVFmzp2zeStmiSOtW61yeJ9hZ8_Pb-F-JxXHteXRDU3BdUeY5Wxk0TBVlE5fKWtFJZddxRbZoQPySNwe6yBA9bEAeripeIMdxoPKn3MuKec65M58Uh-qproteVwhUBjmnGk2TQsklIc4k7IW6hcQyxwsAIRiC0fZw794BKH2NXoyiXTl9FKHcJkQWXURgJGWWsHM";
+        banners = [
+            {
+                id: 'banner-default-1',
+                tag: 'COLEÇÃO EXCLUSIVA',
+                title: 'Móveis de Luxo & Design Atemporal',
+                subtitle: 'Transforme seu ambiente com a sofisticação de peças selecionadas à mão.',
+                imageUrl: defaultBannerUrl,
+                buttons: [
+                    { text: 'Explorar Catálogo', type: 'default', link: '#catalogo' },
+                    { text: 'Falar com Vendedor', type: 'secondary', link: 'https://wa.me/5519996146549' }
+                ]
+            }
+        ];
+    }
+
+    settings.hero_banners = JSON.stringify(banners);
+    settings.parsed_banners = banners;
+
     res.json(settings);
+});
+
+// PUT /api/settings/hero-banners — update hero_banners (admin only)
+router.put('/hero-banners', requireAuth, (req, res) => {
+    const { banners } = req.body;
+    if (!Array.isArray(banners)) {
+        return res.status(400).json({ error: 'Formato inválido. Esperado um array de banners.' });
+    }
+
+    const db = getDb();
+    try {
+        const val = JSON.stringify(banners);
+        db.prepare("INSERT INTO settings (key, value) VALUES ('hero_banners', ?) ON CONFLICT(key) DO UPDATE SET value = ?").run(val, val);
+
+        if (banners.length > 0 && banners[0].imageUrl) {
+            db.prepare("INSERT INTO settings (key, value) VALUES ('banner_url', ?) ON CONFLICT(key) DO UPDATE SET value = ?").run(banners[0].imageUrl, banners[0].imageUrl);
+        }
+
+        res.json({ success: true, banners, banner_url: banners[0]?.imageUrl || '' });
+    } catch (err) {
+        console.error('Erro ao salvar hero_banners:', err);
+        res.status(500).json({ error: 'Erro ao atualizar banners principais.' });
+    }
 });
 
 // PUT /api/settings/banner — update banner_url (admin only)
 router.put('/banner', requireAuth, (req, res) => {
     const { url } = req.body;
-
-    // Allow empty string to reset to default or no banner
     const val = url || '';
-
     const db = getDb();
     try {
         db.prepare("INSERT INTO settings (key, value) VALUES ('banner_url', ?) ON CONFLICT(key) DO UPDATE SET value = ?").run(val, val);
