@@ -275,6 +275,9 @@ async function removeCategory(id, name) {
 async function loadSettings() {
     try {
         const res = await fetch('/api/settings');
+        if (!res.ok) {
+            throw new Error(`Servidor respondeu com status ${res.status}`);
+        }
         const settings = await res.json();
         
         if (settings.parsed_banners && Array.isArray(settings.parsed_banners)) {
@@ -290,8 +293,9 @@ async function loadSettings() {
         }
 
         renderAdminHeroBanners();
-    } catch {
-        showToast('Erro ao carregar configurações de banners.', 'error');
+    } catch (err) {
+        console.error('Erro ao carregar configurações de banners:', err);
+        showToast(`Erro ao carregar configurações: ${err.message}`, 'error');
     }
 }
 
@@ -571,6 +575,9 @@ async function saveHeroBanners() {
         if (btn) btn.disabled = false;
     }
 }
+
+window.addHeroBanner = addHeroBanner;
+window.saveHeroBanners = saveHeroBanners;
 
 // ── Modal ──────────────────────────────────────────────
 function openAddModal() {
