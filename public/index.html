@@ -474,6 +474,96 @@
     </aside>
   </div>
 
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  CONTACT DRAWER                                        -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div id="contact-drawer-backdrop"
+    class="fixed inset-0 z-[60] flex justify-end bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300"
+    aria-hidden="true">
+    <aside id="contact-drawer-panel" class="w-full max-w-lg h-full bg-white shadow-2xl flex flex-col translate-x-full transition-transform duration-400 ease-out">
+      <!-- Header -->
+      <div class="flex items-center justify-between p-5 border-b border-slate-100 bg-slate-50">
+        <div>
+          <h3 class="text-xl font-black text-slate-900">Entre em Contato</h3>
+          <p class="text-xs text-slate-500">Dúvidas, compras ou ofertas de venda de peças</p>
+        </div>
+        <button id="contact-drawer-close" type="button"
+          class="w-9 h-9 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition-colors cursor-pointer">✕</button>
+      </div>
+
+      <!-- Form Body -->
+      <form id="contact-form" class="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
+        <!-- Nome -->
+        <div>
+          <label for="contact-name" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Seu Nome *</label>
+          <input type="text" id="contact-name" required placeholder="Ex: Maria Silva"
+            class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all" />
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label for="contact-email" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Seu Email *</label>
+          <input type="email" id="contact-email" required placeholder="Ex: maria@email.com"
+            class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all" />
+        </div>
+
+        <!-- Assunto -->
+        <div>
+          <label for="contact-subject" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Assunto / Motivo *</label>
+          <select id="contact-subject" required
+            class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all">
+            <option value="Compra">Compra — Quero comprar uma peça</option>
+            <option value="Venda">Venda — Quero vender minha peça ao Galpão</option>
+            <option value="Dúvidas">Dúvidas — Informações gerais e atendimento</option>
+          </select>
+        </div>
+
+        <!-- Mensagem -->
+        <div>
+          <label for="contact-message" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Sua Mensagem *</label>
+          <textarea id="contact-message" required rows="4" placeholder="Descreva os detalhes da sua mensagem ou da peça que deseja vender..."
+            class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all resize-none"></textarea>
+        </div>
+
+        <!-- Upload de Imagem (Opcional) -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Anexar Foto da Peça (Opcional)</label>
+          <div class="flex items-center gap-3">
+            <label for="contact-image-input" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 px-4 py-2 rounded-lg text-xs font-bold cursor-pointer transition-colors flex items-center gap-2">
+              <span>📷 Escolher Foto</span>
+            </label>
+            <input type="file" id="contact-image-input" accept="image/*" class="hidden" />
+            <span id="contact-image-filename" class="text-xs text-slate-500 truncate max-w-[200px]">Nenhuma foto selecionada</span>
+          </div>
+          <div id="contact-image-preview-container" class="mt-2 hidden">
+            <img id="contact-image-preview" src="" alt="Prévia" class="h-20 w-auto object-cover rounded-lg border border-slate-200 shadow-sm" />
+          </div>
+        </div>
+
+        <!-- Proteção Captcha Matemática -->
+        <div class="bg-primary/10 border border-primary/20 rounded-xl p-3.5 mt-2">
+          <label class="block text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1.5">
+            <span>🛡️ Validação de Segurança (Anti-Spam) *</span>
+          </label>
+          <div class="flex items-center gap-3">
+            <span id="captcha-question" class="text-sm font-extrabold text-primary bg-white px-3 py-1.5 rounded-lg border border-primary/30 shadow-xs">
+              Quanto é 5 + 3?
+            </span>
+            <input type="number" id="captcha-answer" required placeholder="Sua resposta"
+              class="w-28 bg-white border border-slate-300 rounded-lg p-1.5 text-sm font-bold text-center focus:ring-2 focus:ring-primary/50 outline-none" />
+          </div>
+          <p id="captcha-error" class="text-xs text-red-600 font-semibold mt-1 hidden">Resposta incorreta. Tente novamente.</p>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="contact-submit-btn"
+          class="w-full bg-primary hover:bg-primary/90 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/30 cursor-pointer mt-2">
+          <span>Enviar Mensagem</span>
+        </button>
+      </form>
+    </aside>
+  </div>
+
   <script>
     'use strict';
 

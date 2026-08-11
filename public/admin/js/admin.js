@@ -45,6 +45,9 @@ let generalPromoteImagePath = null;
 let generalPromotePollInterval = null;
 let driveFiles = [];
 let heroBanners = [];
+let contactMessages = [];
+let selectedContactId = null;
+let contactSubjectFilter = 'ALL';
 
 // ── Format price ───────────────────────────────────────
 function formatPrice(v) {
@@ -59,6 +62,7 @@ function navigateTo(page) {
     document.getElementById('page-products').style.display = page === 'products' ? '' : 'none';
     document.getElementById('page-categories').style.display = page === 'categories' ? '' : 'none';
     document.getElementById('page-settings').style.display = page === 'settings' ? '' : 'none';
+    document.getElementById('page-contacts').style.display = page === 'contacts' ? '' : 'none';
 
     // Toggle active nav links
     document.querySelectorAll('.sidebar-link[data-page]').forEach(link => {
@@ -66,12 +70,13 @@ function navigateTo(page) {
     });
 
     // Update topbar title
-    const titles = { products: 'Produtos', categories: 'Categorias', settings: 'Configurações' };
+    const titles = { products: 'Produtos', categories: 'Categorias', settings: 'Configurações', contacts: 'Mensagens & Contatos' };
     document.getElementById('topbar-title').textContent = titles[page] || '';
 
     // Render the right page
     if (page === 'categories') renderCategoriesPage();
     if (page === 'settings') loadSettings();
+    if (page === 'contacts') loadContacts();
 }
 
 // ── Load Products ──────────────────────────────────────
@@ -579,6 +584,224 @@ async function saveHeroBanners() {
 
 window.addHeroBanner = addHeroBanner;
 window.saveHeroBanners = saveHeroBanners;
+
+// ── Contact Messages Platform ──────────────────────────
+async function loadContacts() {
+    try {
+        const res = await fetch('/api/contacts');
+        if (!res.ok) throw new Error('Erro ao carregar mensagens.');
+        const data = await res.json();
+
+        if (data.success) {
+            contactMessages = data.messages || [];
+            updateUnreadBadge(data.unreadCount || 0);
+            renderContactsList();
+        }
+    } catch (err) {
+        console.error(err);
+        showToast('Erro ao carregar mensagens de contato.', 'error');
+    }
+}
+
+function updateUnreadBadge(count) {
+    const badge = document.getElementById('unread-messages-badge');
+    if (!badge) return;
+    if (count > 0) {
+        badge.textContent = count;
+        badge.style.display = 'inline-block';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+function renderContactsList() {
+    const container = document.getElementById('contacts-list-container');
+    const searchVal = document.getElementById('contact-search-input')?.value.toLowerCase().trim() || '';
+
+    if (!container) return;
+
+    let filtered = [...contactMessages];
+
+    // Subject Filter
+    if (contactSubjectFilter === 'UNREAD') {
+        filtered = filtered.filter(m => m.status === 'unread');
+    } else if (contactSubjectFilter !== 'ALL') {
+        filtered = filtered.filter(m => m.subject === contactSubjectFilter);
+    }
+
+    // Search Filter
+    if (searchVal) {
+        filtered = filtered.filter(m => 
+            m.name.toLowerCase().includes(searchVal) || 
+            m.email.toLowerCase().includes(searchVal) ||
+            m.message.toLowerCase().includes(searchVal)
+        );
+    }
+
+    if (filtered.length === 0) {
+        container.innerHTML = `
+        <div style="text-align: center; padding: 3rem 1rem; background: var(--dark-3); border: 1px dashed var(--dark-4); border-radius: 8px; color: var(--gray-300);">
+            <span style="font-size: 2rem; display: block; margin-bottom: 0.5rem;">📬</span>
+            <p style="margin: 0; font-size: 0.9rem;">Nenhuma mensagem encontrada para os filtros selecionados.</p>
+        </div>`;
+        return;
+    }
+
+    container.innerHTML = filtered.map(msg => {
+        const isUnread = msg.status === 'unread';
+        const isReplied = msg.status === 'replied';
+        
+        let subjectBadgeClass = 'background: rgba(124,77,255,0.15); color: #a485ff; border: 1px solid rgba(124,77,255,0.3);';
+        if (msg.subject === 'Venda') subjectBadgeClass = 'background: rgba(46, 204, 113, 0.15); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.3);';
+        if (msg.subject === 'Compra') subjectBadgeClass = 'background: rgba(241, 196, 15, 0.15); color: #f1c40f; border: 1px solid rgba(241, 196, 15, 0.3);';
+
+        const statusBadge = isReplied 
+            ? `<span style="font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; background: rgba(46, 204, 113, 0.15); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.3);">✓ Respondido</span>`
+            : isUnread
+                ? `<span style="font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; background: rgba(230, 126, 34, 0.15); color: #e67e22; border: 1px solid rgba(230, 126, 34, 0.3);">⚡ Não lida</span>`
+                : `<span style="font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; background: var(--dark-4); color: var(--gray-400);">Lida</span>`;
+
+        const imageHtml = msg.image_url ? `
+            <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--dark-4);">
+                <span style="font-size: 0.7rem; font-weight: 600; color: var(--gray-400); display: block; margin-bottom: 0.4rem;">Foto Anexada pelo Cliente:</span>
+                <a href="${msg.image_url}" target="_blank" rel="noopener noreferrer" style="display: inline-block;">
+                    <img src="${msg.image_url}" alt="Anexo" style="max-height: 120px; max-width: 100%; border-radius: 6px; border: 1px solid var(--dark-4); object-fit: cover;" />
+                </a>
+            </div>
+        ` : '';
+
+        const replyBoxHtml = msg.reply_message ? `
+            <div style="margin-top: 0.75rem; background: rgba(46, 204, 113, 0.08); border: 1px solid rgba(46, 204, 113, 0.2); border-radius: 6px; padding: 0.6rem 0.8rem; font-size: 0.75rem; color: var(--gray-200);">
+                <strong style="color: #2ecc71; display: block; margin-bottom: 0.2rem;">Sua Resposta:</strong>
+                ${msg.reply_message}
+            </div>
+        ` : '';
+
+        const formattedDate = msg.created_at ? new Date(msg.created_at).toLocaleString('pt-BR') : '';
+
+        return `
+        <div class="contact-card" data-id="${msg.id}" style="background: var(--dark-3); border: 1px solid ${isUnread ? 'rgba(244,140,37,0.4)' : 'var(--dark-4)'}; border-radius: 8px; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.6rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                    <span style="font-weight: 700; font-size: 0.95rem; color: var(--white-pure);">${msg.name}</span>
+                    <span style="font-size: 0.8rem; color: var(--gray-400); margin-left: 0.5rem;">&lt;${msg.email}&gt;</span>
+                </div>
+                <div style="display: flex; gap: 0.4rem; align-items: center;">
+                    <span style="font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; ${subjectBadgeClass}">${msg.subject}</span>
+                    ${statusBadge}
+                    <span style="font-size: 0.7rem; color: var(--gray-400); margin-left: 0.4rem;">${formattedDate}</span>
+                </div>
+            </div>
+
+            <div style="font-size: 0.85rem; color: var(--gray-200); line-height: 1.5; white-space: pre-wrap; background: var(--dark-2); padding: 0.75rem; border-radius: 6px; border: 1px solid var(--dark-4);">
+                ${msg.message}
+            </div>
+
+            ${imageHtml}
+            ${replyBoxHtml}
+
+            <!-- Actions Bar -->
+            <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.4rem; border-top: 1px solid var(--dark-4); padding-top: 0.6rem;">
+                <button type="button" class="btn btn-secondary btn-reply-contact" data-id="${msg.id}" style="font-size: 0.75rem; padding: 0.35rem 0.75rem; background: rgba(124, 77, 255, 0.15); color: #a485ff; border: 1px solid rgba(124, 77, 255, 0.3); display: flex; align-items: center; gap: 0.3rem;">
+                    💬 Responder
+                </button>
+                <button type="button" class="btn btn-secondary btn-delete-contact" data-id="${msg.id}" style="font-size: 0.75rem; padding: 0.35rem 0.65rem; background: rgba(231, 76, 60, 0.15); color: var(--red-light); border: 1px solid rgba(231, 76, 60, 0.3); display: flex; align-items: center; gap: 0.3rem;">
+                    🗑️ Excluir
+                </button>
+            </div>
+        </div>`;
+    }).join('');
+
+    container.querySelectorAll('.btn-reply-contact').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = parseInt(btn.dataset.id);
+            openReplyModal(id);
+        });
+    });
+
+    container.querySelectorAll('.btn-delete-contact').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = parseInt(btn.dataset.id);
+            if (confirm('Tem certeza que deseja excluir esta mensagem?')) {
+                await deleteContactMessage(id);
+            }
+        });
+    });
+}
+
+function openReplyModal(id) {
+    const msg = contactMessages.find(m => m.id === id);
+    if (!msg) return;
+
+    selectedContactId = id;
+
+    const modal = document.getElementById('reply-modal');
+    const summary = document.getElementById('reply-customer-summary');
+    const replyInput = document.getElementById('reply-message-input');
+    const waBtn = document.getElementById('reply-btn-wa');
+    const emailBtn = document.getElementById('reply-btn-email');
+
+    if (summary) {
+        summary.innerHTML = `
+            <strong>Cliente:</strong> ${msg.name} (${msg.email})<br>
+            <strong>Assunto:</strong> ${msg.subject}<br>
+            <strong>Mensagem:</strong> "${msg.message.substring(0, 120)}${msg.message.length > 120 ? '...' : ''}"
+        `;
+    }
+
+    if (replyInput) replyInput.value = msg.reply_message || '';
+
+    const defaultReplyMsg = `Olá ${msg.name}, referente ao seu contato sobre [${msg.subject}] no Galpão do Cândido: `;
+    const encodedMsg = encodeURIComponent(defaultReplyMsg);
+
+    if (waBtn) waBtn.href = `https://wa.me/5519996146549?text=${encodedMsg}`;
+    if (emailBtn) emailBtn.href = `mailto:${msg.email}?subject=${encodeURIComponent('Resposta: ' + msg.subject + ' — Galpão do Cândido')}&body=${encodedMsg}`;
+
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeReplyModal() {
+    const modal = document.getElementById('reply-modal');
+    if (modal) modal.style.display = 'none';
+    selectedContactId = null;
+}
+
+async function saveReply() {
+    if (!selectedContactId) return;
+
+    const replyInput = document.getElementById('reply-message-input');
+    const replyMessage = replyInput?.value.trim() || 'Respondido via atendimento direto';
+
+    try {
+        const res = await fetch(`/api/contacts/${selectedContactId}/reply`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ replyMessage })
+        });
+
+        if (!res.ok) throw new Error('Erro ao salvar resposta');
+
+        showToast('Resposta registrada com sucesso!');
+        closeReplyModal();
+        loadContacts();
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
+async function deleteContactMessage(id) {
+    try {
+        const res = await fetch(`/api/contacts/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Erro ao excluir mensagem');
+
+        showToast('Mensagem excluída.');
+        loadContacts();
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
+window.closeReplyModal = closeReplyModal;
 
 // ── Modal ──────────────────────────────────────────────
 function openAddModal() {
@@ -1752,6 +1975,19 @@ async function init() {
     // Hero Banner Manager Listeners
     document.getElementById('btn-add-hero-banner')?.addEventListener('click', addHeroBanner);
     document.getElementById('btn-save-hero-banners')?.addEventListener('click', saveHeroBanners);
+
+    // Contact Messages Listeners
+    document.getElementById('contact-search-input')?.addEventListener('input', renderContactsList);
+    document.getElementById('btn-save-reply')?.addEventListener('click', saveReply);
+
+    document.querySelectorAll('.contact-filter-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.contact-filter-btn').forEach(b => b.classList.remove('active'));
+            e.currentTarget.classList.add('active');
+            contactSubjectFilter = e.currentTarget.dataset.subject;
+            renderContactsList();
+        });
+    });
 
     // Load data
     await loadCategories();

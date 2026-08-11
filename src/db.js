@@ -84,6 +84,22 @@ function initDb() {
     );
   `);
 
+    // Contacts table
+    database.exec(`
+    CREATE TABLE IF NOT EXISTS contacts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      subject TEXT NOT NULL,
+      message TEXT NOT NULL,
+      image_url TEXT,
+      status TEXT NOT NULL DEFAULT 'unread',
+      reply_message TEXT,
+      replied_at TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+  `);
+
     // Seed default banner url
     const bannerCount = database.prepare("SELECT COUNT(*) as cnt FROM settings WHERE key = 'banner_url'").get();
     if (bannerCount.cnt === 0) {

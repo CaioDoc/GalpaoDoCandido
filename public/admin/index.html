@@ -46,6 +46,15 @@
                     </svg>
                     Categorias
                 </a>
+                <a href="#contacts" class="sidebar-link" data-page="contacts">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    Mensagens
+                    <span id="unread-messages-badge" class="badge-count" style="display:none; background: var(--primary); color: white; border-radius: 999px; font-size: 0.65rem; padding: 0.1rem 0.45rem; font-weight: 800; margin-left: auto;">0</span>
+                </a>
                 <a href="#" class="sidebar-link" id="nav-settings" data-page="settings">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor" stroke-width="2">
@@ -251,6 +260,71 @@
                     </div>
                 </div>
             </main>
+
+            <!-- ════ PAGE: CONTACT MESSAGES ════ -->
+            <main class="admin-page" id="page-contacts" style="display:none;">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Mensagens & Contatos</h1>
+                        <p class="page-subtitle">Gerencie dúvidas, pedidos de compra e ofertas de venda recebidas do site</p>
+                    </div>
+                </div>
+
+                <!-- Filters & Controls -->
+                <div style="background: var(--dark-3); border: 1px solid var(--dark-4); border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem;">
+                    <!-- Filter Subject Pills -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;" id="contact-subject-filters">
+                        <button type="button" class="btn btn-secondary contact-filter-btn active" data-subject="ALL" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;">Todas</button>
+                        <button type="button" class="btn btn-secondary contact-filter-btn" data-subject="Venda" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;">🏷️ Venda (Ofertas)</button>
+                        <button type="button" class="btn btn-secondary contact-filter-btn" data-subject="Compra" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;">🛍️ Compra</button>
+                        <button type="button" class="btn btn-secondary contact-filter-btn" data-subject="Dúvidas" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;">❓ Dúvidas</button>
+                        <button type="button" class="btn btn-secondary contact-filter-btn" data-subject="UNREAD" style="font-size: 0.75rem; padding: 0.35rem 0.75rem; color: #f48c25; border-color: rgba(244,140,37,0.3);">⚡ Não Lidas</button>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input type="text" id="contact-search-input" placeholder="🔍 Pesquisar mensagens..." 
+                            style="background: var(--dark-2); border: 1px solid var(--dark-4); border-radius: 6px; padding: 0.35rem 0.75rem; font-size: 0.75rem; color: var(--gray-100); min-width: 200px;" />
+                    </div>
+                </div>
+
+                <!-- Messages List Container -->
+                <div id="contacts-list-container" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <!-- Rendered by JS -->
+                </div>
+            </main>
+
+            <!-- ════ MODAL: RESPONDER MENSAGEM ════ -->
+            <div class="modal-backdrop" id="reply-modal" style="display:none;" role="dialog" aria-modal="true">
+                <div class="modal-panel" style="max-width: 580px; width: 100%;">
+                    <div class="modal-header">
+                        <h2 class="modal-title-text" id="reply-modal-title">Responder Mensagem</h2>
+                        <button class="modal-close" type="button" onclick="closeReplyModal()">✕</button>
+                    </div>
+                    <div class="modal-body" style="padding: 1.25rem;">
+                        <div id="reply-customer-summary" style="background: var(--dark-2); border: 1px solid var(--dark-4); border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem; font-size: 0.8rem; color: var(--gray-200);">
+                            <!-- Filled by JS -->
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label class="form-label">Sua Resposta</label>
+                            <textarea id="reply-message-input" class="form-textarea" rows="4" placeholder="Escreva a resposta para o cliente..." style="font-size: 0.85rem; min-height: 90px;"></textarea>
+                        </div>
+
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: flex-end;">
+                            <a id="reply-btn-wa" href="#" target="_blank" class="btn btn-secondary" style="background: rgba(46, 204, 113, 0.15); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.3); font-size: 0.75rem; padding: 0.4rem 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
+                                <span>💬 Enviar no WhatsApp</span>
+                            </a>
+                            <a id="reply-btn-email" href="#" class="btn btn-secondary" style="background: rgba(52, 152, 219, 0.15); color: #3498db; border: 1px solid rgba(52, 152, 219, 0.3); font-size: 0.75rem; padding: 0.4rem 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
+                                <span>✉️ Enviar Email</span>
+                            </a>
+                            <button type="button" class="btn btn-primary" id="btn-save-reply" style="font-size: 0.75rem; padding: 0.4rem 0.9rem;">
+                                💾 Registrar Resposta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

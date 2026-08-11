@@ -646,10 +646,163 @@ function sendQuoteToWhatsApp() {
     });
 
     msg += `\n*Valor Total Estimado:* ${formatPrice(total)}\n\nAguardo retorno. Obrigado!`;
-    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
-    window.open(url, '_blank');
+// ── Contact Drawer & Math Captcha ─────────────────────────────
+let captchaNum1 = 0;
+let captchaNum2 = 0;
+let contactUploadedImageUrl = null;
+
+function generateCaptcha() {
+    captchaNum1 = Math.floor(Math.random() * 9) + 1;
+    captchaNum2 = Math.floor(Math.random() * 9) + 1;
+    const qEl = document.getElementById('captcha-question');
+    const aInput = document.getElementById('captcha-answer');
+    const errEl = document.getElementById('captcha-error');
+
+    if (qEl) qEl.textContent = `Quanto é ${captchaNum1} + ${captchaNum2}?`;
+    if (aInput) aInput.value = '';
+    if (errEl) errEl.classList.add('hidden');
 }
 
+function openContactDrawer(preselectSubject = 'Dúvidas') {
+    const backdrop = document.getElementById('contact-drawer-backdrop');
+    const panel = document.getElementById('contact-drawer-panel');
+    const subjectSelect = document.getElementById('contact-subject');
+
+    if (subjectSelect && preselectSubject) {
+        subjectSelect.value = preselectSubject;
+    }
+
+    generateCaptcha();
+
+    if (backdrop && panel) {
+        backdrop.classList.remove('pointer-events-none', 'opacity-0');
+        backdrop.classList.add('opacity-100');
+        panel.classList.remove('translate-x-full');
+    }
+}
+
+function closeContactDrawer() {
+    const backdrop = document.getElementById('contact-drawer-backdrop');
+    const panel = document.getElementById('contact-drawer-panel');
+
+    if (backdrop && panel) {
+        backdrop.classList.add('opacity-0', 'pointer-events-none');
+        backdrop.classList.remove('opacity-100');
+        panel.classList.add('translate-x-full');
+    }
+}
+
+function initContactDrawer() {
+    const backdrop = document.getElementById('contact-drawer-backdrop');
+    const closeBtn = document.getElementById('contact-drawer-close');
+    const form = document.getElementById('contact-form');
+    const imageInput = document.getElementById('contact-image-input');
+    const filenameSpan = document.getElementById('contact-image-filename');
+    const previewContainer = document.getElementById('contact-image-preview-container');
+    const previewImg = document.getElementById('contact-image-preview');
+
+    document.querySelectorAll('a[href="#contato"], button[data-action="contact"]').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.preventDefault();
+            openContactDrawer();
+        });
+    });
+
+    if (closeBtn) closeBtn.addEventListener('click', closeContactDrawer);
+    if (backdrop) {
+        backdrop.addEventListener('click', (e) => {
+            if (e.target === backdrop) closeContactDrawer();
+        });
+    }
+
+    if (imageInput) {
+        imageInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (filenameSpan) filenameSpan.textContent = file.name;
+
+            try {
+                const formData = new FormData();
+                formData.append('image', file);
+
+                const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                if (!res.ok) throw new Error('Falha no upload da foto');
+
+                const data = await res.json();
+                contactUploadedImageUrl = data.url;
+
+                if (previewImg && previewContainer) {
+                    previewImg.src = data.url;
+                    previewContainer.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Erro ao carregar a imagem. Tente uma foto menor ou em formato JPG/PNG.');
+            }
+        });
+    }
+
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const answerVal = parseInt(document.getElementById('captcha-answer')?.value || '0', 10);
+            const captchaError = document.getElementById('captcha-error');
+
+            if (answerVal !== (captchaNum1 + captchaNum2)) {
+                if (captchaError) captchaError.classList.remove('hidden');
+                generateCaptcha();
+                return;
+            }
+
+            if (captchaError) captchaError.classList.add('hidden');
+
+            const submitBtn = document.getElementById('contact-submit-btn');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span>⏳ Enviando...</span>';
+            }
+
+            const name = document.getElementById('contact-name')?.value;
+            const email = document.getElementById('contact-email')?.value;
+            const subject = document.getElementById('contact-subject')?.value;
+            const message = document.getElementById('contact-message')?.value;
+
+            try {
+                const res = await fetch('/api/contacts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        subject,
+                        message,
+                        imageUrl: contactUploadedImageUrl
+                    })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.error || 'Erro ao enviar mensagem');
+
+                alert(data.message || 'Sua mensagem foi enviada com sucesso!');
+                form.reset();
+                contactUploadedImageUrl = null;
+                if (previewContainer) previewContainer.classList.add('hidden');
+                if (filenameSpan) filenameSpan.textContent = 'Nenhuma foto selecionada';
+                closeContactDrawer();
+            } catch (err) {
+                alert(err.message || 'Falha ao enviar mensagem.');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>Enviar Mensagem</span>';
+                }
+            }
+        });
+    }
+}
 
 // ── App Init ──────────────────────────────────────────
 async function init() {
@@ -660,6 +813,7 @@ async function init() {
     initLoadMore();
     initSmoothScroll();
     initContactButtons();
+    initContactDrawer();
 
     await loadProducts();
     await loadHeroBanners();

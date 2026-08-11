@@ -15,6 +15,7 @@ const categoryRoutes = require('./src/routes/categories');
 const settingsRoutes = require('./src/routes/settings');
 const promoteRoutes = require('./src/routes/promoteRoutes');
 const promotionRoutes = require('./src/routes/promotionRoutes');
+const contactsRoutes = require('./src/routes/contacts');
 const whatsappService = require('./src/services/whatsappService');
 const schedulerService = require('./src/services/schedulerService');
 // const promotionScheduler = require('./src/services/promotionScheduler');
@@ -63,6 +64,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/promote', promoteRoutes);
 app.use('/api/promotion', promotionRoutes);
+app.use('/api/contacts', contactsRoutes);
 
 // SPA fallback for admin
 app.get('/admin', (req, res) => {
