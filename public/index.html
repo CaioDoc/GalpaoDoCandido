@@ -940,22 +940,237 @@
       window.open(waUrl(msg), '_blank');
     }
 
+    // ── Hero Banner Slider ────────────────────────────────
+    let heroBanners = [];
+    let currentHeroIdx = 0;
+    let heroTimer = null;
+
+    async function loadHeroBanners() {
+      try {
+        const res = await fetch('/api/settings');
+        if (res.ok) {
+          const settings = await res.json();
+          if (settings.parsed_banners && Array.isArray(settings.parsed_banners) && settings.parsed_banners.length > 0) {
+            heroBanners = settings.parsed_banners;
+          } else if (settings.hero_banners) {
+            try {
+              heroBanners = JSON.parse(settings.hero_banners);
+            } catch (e) { }
+          }
+        }
+      } catch (e) {
+        console.error('Erro ao carregar banners:', e);
+      }
+
+      if (!heroBanners || heroBanners.length === 0) {
+        heroBanners = [
+          {
+            id: 'b1',
+            tag: 'COLEÇÃO EXCLUSIVA',
+            title: 'Móveis de Luxo & Design Atemporal',
+            subtitle: 'Transforme seu ambiente com a sofisticação de peças selecionadas à mão.',
+            imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAvAAN1NYELrbPLEreymiDA3OOKNsrELf3jHiCj2XHPqEBke9mUS5zbtQdR55Sm0V7jLLsFvZigJVFmzp2zeStmiSOtW61yeJ9hZ8_Pb-F-JxXHteXRDU3BdUeY5Wxk0TBVlE5fKWtFJZddxRbZoQPySNwe6yBA9bEAeripeIMdxoPKn3MuKec65M58Uh-qproteVwhUBjmnGk2TQsklIc4k7IW6hcQyxwsAIRiC0fZw794BKH2NXoyiXTl9FKHcJkQWXURgJGWWsHM',
+            buttons: [
+              { text: 'Explorar Catálogo', type: 'default', link: '#catalogo' },
+              { text: 'Falar com Vendedor', type: 'secondary', link: 'https://wa.me/5519996146549' }
+            ]
+          },
+          {
+            id: 'b2',
+            tag: 'COMPRAMOS PEÇAS EXCLUSIVAS',
+            title: 'Tem Peças Raras ou Antiguidades? Queremos Comprar.',
+            subtitle: 'Avaliamos e compramos móveis antigos, clássicos e de design assinado com avaliação justa e pagamento rápido.',
+            imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAvAAN1NYELrbPLEreymiDA3OOKNsrELf3jHiCj2XHPqEBke9mUS5zbtQdR55Sm0V7jLLsFvZigJVFmzp2zeStmiSOtW61yeJ9hZ8_Pb-F-JxXHteXRDU3BdUeY5Wxk0TBVlE5fKWtFJZddxRbZoQPySNwe6yBA9bEAeripeIMdxoPKn3MuKec65M58Uh-qproteVwhUBjmnGk2TQsklIc4k7IW6hcQyxwsAIRiC0fZw794BKH2NXoyiXTl9FKHcJkQWXURgJGWWsHM',
+            buttons: [
+              { text: 'Vender Minha Peça', type: 'default', link: '#contato' },
+              { text: 'Solicitar Avaliação', type: 'secondary', link: 'https://wa.me/5519996146549' }
+            ]
+          }
+        ];
+      }
+
+      renderHeroSlider();
+    }
+
+    function renderHeroSlider() {
+      const controls = document.getElementById('hero-controls');
+      const dotsContainer = document.getElementById('hero-dots-container');
+
+      if (heroBanners.length > 1) {
+        if (controls) controls.style.display = 'block';
+
+        if (dotsContainer) {
+          dotsContainer.innerHTML = heroBanners.map((_, idx) => `
+            <button type="button" class="hero-dot-btn w-3 h-3 rounded-full transition-all cursor-pointer ${idx === 0 ? 'bg-primary w-7' : 'bg-white/50 hover:bg-white'}" data-idx="${idx}" aria-label="Slide ${idx + 1}"></button>
+          `).join('');
+
+          dotsContainer.querySelectorAll('.hero-dot-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              goToHeroSlide(parseInt(btn.dataset.idx));
+            });
+          });
+        }
+
+        const prevBtn = document.getElementById('hero-prev-btn');
+        const nextBtn = document.getElementById('hero-next-btn');
+
+        if (prevBtn) {
+          prevBtn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const prevIdx = (currentHeroIdx - 1 + heroBanners.length) % heroBanners.length;
+            goToHeroSlide(prevIdx);
+          };
+        }
+
+        if (nextBtn) {
+          nextBtn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const nextIdx = (currentHeroIdx + 1) % heroBanners.length;
+            goToHeroSlide(nextIdx);
+          };
+        }
+
+        startHeroAutoPlay();
+      } else {
+        if (controls) controls.style.display = 'none';
+      }
+
+      updateHeroSlideContent(0);
+    }
+
+    function goToHeroSlide(idx) {
+      currentHeroIdx = idx;
+      updateHeroSlideContent(idx);
+
+      const dots = document.querySelectorAll('.hero-dot-btn');
+      dots.forEach((dot, dIdx) => {
+        if (dIdx === idx) {
+          dot.className = 'hero-dot-btn w-7 h-3 rounded-full transition-all cursor-pointer bg-primary';
+        } else {
+          dot.className = 'hero-dot-btn w-3 h-3 rounded-full transition-all cursor-pointer bg-white/50 hover:bg-white';
+        }
+      });
+
+      startHeroAutoPlay();
+    }
+
+    function updateHeroSlideContent(idx) {
+      const banner = heroBanners[idx];
+      if (!banner) return;
+
+      const heroBg = document.getElementById('hero-bg');
+      const tagEl = document.getElementById('hero-tag');
+      const titleEl = document.getElementById('hero-title');
+      const subEl = document.getElementById('hero-subtitle');
+      const btnsContainer = document.getElementById('hero-buttons-container');
+
+      if (heroBg) {
+        const bgUrl = banner.imageUrl || 'https://lh3.googleusercontent.com/aida-public/AB6AXuAvAAN1NYELrbPLEreymiDA3OOKNsrELf3jHiCj2XHPqEBke9mUS5zbtQdR55Sm0V7jLLsFvZigJVFmzp2zeStmiSOtW61yeJ9hZ8_Pb-F-JxXHteXRDU3BdUeY5Wxk0TBVlE5fKWtFJZddxRbZoQPySNwe6yBA9bEAeripeIMdxoPKn3MuKec65M58Uh-qproteVwhUBjmnGk2TQsklIc4k7IW6hcQyxwsAIRiC0fZw794BKH2NXoyiXTl9FKHcJkQWXURgJGWWsHM';
+        heroBg.style.backgroundImage = `linear-gradient(to right, rgba(0,0,0,0.75), rgba(0,0,0,0.2)), url('${bgUrl}')`;
+      }
+
+      if (tagEl) tagEl.textContent = banner.tag || 'COLEÇÃO EXCLUSIVA';
+      if (titleEl) titleEl.textContent = banner.title || 'Móveis de Luxo & Design Atemporal';
+      if (subEl) subEl.textContent = banner.subtitle || '';
+
+      if (btnsContainer && banner.buttons && Array.isArray(banner.buttons)) {
+        btnsContainer.innerHTML = banner.buttons.map(btn => {
+          const isSecondary = btn.type === 'secondary';
+          const linkHref = btn.link || '#catalogo';
+          const isContactLink = linkHref === '#contato';
+
+          if (isSecondary) {
+            return `<a href="${linkHref}" ${isContactLink ? 'data-action="contact"' : ''} ${linkHref.startsWith('http') ? 'target="_blank" rel="noopener noreferrer"' : ''} class="w-full sm:w-auto px-8 py-3.5 rounded-full font-bold text-white border-2 border-white/40 hover:border-white hover:bg-white/10 backdrop-blur transition-all flex items-center justify-center gap-2 cursor-pointer">
+              <span>${btn.text}</span>
+            </a>`;
+          } else {
+            return `<a href="${linkHref}" ${isContactLink ? 'data-action="contact"' : ''} ${linkHref.startsWith('http') ? 'target="_blank" rel="noopener noreferrer"' : ''} class="w-full sm:w-auto px-8 py-3.5 rounded-full font-bold text-slate-900 bg-primary hover:bg-primary/90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/30 cursor-pointer">
+              <span>${btn.text}</span>
+            </a>`;
+          }
+        }).join('');
+
+        btnsContainer.querySelectorAll('a[href="#contato"], a[data-action="contact"]').forEach(el => {
+          el.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openContactDrawer('Venda');
+          });
+        });
+      }
+    }
+
+    function startHeroAutoPlay() {
+      if (heroTimer) clearInterval(heroTimer);
+      if (heroBanners.length <= 1) return;
+
+      heroTimer = setInterval(() => {
+        const nextIdx = (currentHeroIdx + 1) % heroBanners.length;
+        goToHeroSlide(nextIdx);
+      }, 5000);
+    }
+
+    // ── Contact Drawer ──────────────────────────────────
+    let captchaNum1 = 0;
+    let captchaNum2 = 0;
+    let contactUploadedImageUrl = null;
+
+    function generateCaptcha() {
+      captchaNum1 = Math.floor(Math.random() * 8) + 1;
+      captchaNum2 = Math.floor(Math.random() * 8) + 1;
+      const qEl = document.getElementById('captcha-question');
+      const aInput = document.getElementById('captcha-answer');
+      const errEl = document.getElementById('captcha-error');
+
+      if (qEl) qEl.textContent = `Quanto é ${captchaNum1} + ${captchaNum2}?`;
+      if (aInput) aInput.value = '';
+      if (errEl) errEl.classList.add('hidden');
+    }
+
+    function openContactDrawer(preselectSubject = 'Dúvidas') {
+      const backdrop = document.getElementById('contact-drawer-backdrop');
+      const panel = document.getElementById('contact-drawer-panel');
+      const subjectSelect = document.getElementById('contact-subject');
+
+      if (subjectSelect && preselectSubject) {
+        subjectSelect.value = preselectSubject;
+      }
+
+      generateCaptcha();
+
+      if (backdrop && panel) {
+        backdrop.style.opacity = '1';
+        backdrop.style.pointerEvents = 'auto';
+        backdrop.setAttribute('aria-hidden', 'false');
+        panel.style.transform = 'translateX(0)';
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function closeContactDrawer() {
+      const backdrop = document.getElementById('contact-drawer-backdrop');
+      const panel = document.getElementById('contact-drawer-panel');
+      if (backdrop && panel) {
+        backdrop.style.opacity = '0';
+        backdrop.style.pointerEvents = 'none';
+        backdrop.setAttribute('aria-hidden', 'true');
+        panel.style.transform = 'translateX(100%)';
+        document.body.style.overflow = '';
+      }
+    }
+
     // ── App Init ─────────────────────────────────────────
     async function init() {
       initWaLinks();
       loadCartFromStorage();
       updateCartUI();
 
-      // Load global settings
-      try {
-        const settingsRes = await fetch('/api/settings');
-        if (settingsRes.ok) {
-          const settings = await settingsRes.json();
-          if (settings.banner_url) {
-            document.getElementById('hero-bg').style.backgroundImage = `linear-gradient(to right, rgba(0,0,0,0.75), rgba(0,0,0,0.2)), url('${settings.banner_url}')`;
-          }
-        }
-      } catch (err) { }
+      // Load Hero Banners & Slider
+      await loadHeroBanners();
 
       await fetchProducts();
       renderTabs();
@@ -1001,9 +1216,103 @@
       });
       document.getElementById('cart-send-wa').addEventListener('click', sendQuoteWa);
 
+      // Contact drawer events
+      const headerContactBtn = document.getElementById('header-contact-link');
+      if (headerContactBtn) {
+        headerContactBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          openContactDrawer();
+        });
+      }
+
+      document.querySelectorAll('a[href="#contato"], button[data-action="contact"]').forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          openContactDrawer();
+        });
+      });
+
+      document.getElementById('contact-drawer-close')?.addEventListener('click', closeContactDrawer);
+      document.getElementById('contact-drawer-backdrop')?.addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeContactDrawer();
+      });
+
+      // Contact Image Upload
+      const contactImgInput = document.getElementById('contact-image-input');
+      if (contactImgInput) {
+        contactImgInput.addEventListener('change', async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          document.getElementById('contact-image-filename').textContent = file.name;
+          try {
+            const fd = new FormData();
+            fd.append('image', file);
+            const res = await fetch('/api/upload', { method: 'POST', body: fd });
+            if (!res.ok) throw new Error('Erro no upload');
+            const data = await res.json();
+            contactUploadedImageUrl = data.url;
+            document.getElementById('contact-image-preview').src = data.url;
+            document.getElementById('contact-image-preview-container').classList.remove('hidden');
+          } catch (err) {
+            alert('Erro ao carregar a foto.');
+          }
+        });
+      }
+
+      // Contact Form Submit
+      const contactForm = document.getElementById('contact-form');
+      if (contactForm) {
+        contactForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const ans = parseInt(document.getElementById('captcha-answer')?.value || '0', 10);
+          if (ans !== (captchaNum1 + captchaNum2)) {
+            document.getElementById('captcha-error')?.classList.remove('hidden');
+            generateCaptcha();
+            return;
+          }
+
+          const submitBtn = document.getElementById('contact-submit-btn');
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span>⏳ Enviando...</span>';
+          }
+
+          try {
+            const res = await fetch('/api/contacts', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                name: document.getElementById('contact-name').value,
+                email: document.getElementById('contact-email').value,
+                subject: document.getElementById('contact-subject').value,
+                message: document.getElementById('contact-message').value,
+                imageUrl: contactUploadedImageUrl
+              })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Erro ao enviar');
+            alert(data.message || 'Mensagem enviada com sucesso!');
+            contactForm.reset();
+            contactUploadedImageUrl = null;
+            document.getElementById('contact-image-preview-container')?.classList.add('hidden');
+            document.getElementById('contact-image-filename').textContent = 'Nenhuma foto selecionada';
+            closeContactDrawer();
+          } catch (err) {
+            alert(err.message);
+          } finally {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = '<span>Enviar Mensagem</span>';
+            }
+          }
+        });
+      }
+
       // Escape key
       document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') { closeProductDrawer(); closeCart(); closeAppDrawer(); }
+        if (e.key === 'Escape') { closeProductDrawer(); closeCart(); closeAppDrawer(); closeContactDrawer(); }
       });
 
       // ── App Drawer (QR Code Web App) ────────────────────
@@ -1012,7 +1321,6 @@
         const panel = document.getElementById('app-drawer-panel');
         const qrImg = document.getElementById('app-qr-img');
 
-        // Generate QR code for current site URL
         const siteUrl = encodeURIComponent(window.location.origin);
         qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=10&data=${siteUrl}&color=0D0D0D&bgcolor=FFFFFF&format=png&qzone=2`;
 
