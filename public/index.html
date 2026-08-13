@@ -99,6 +99,23 @@
 
     .card-title-wrapper.scrolling .card-title-inner {
       animation: scroll-title 3s ease-in-out infinite alternate;
+    /* Kizuna Mobile Responsive Drawer Styles */
+    @media (max-width: 639px) {
+      body {
+        padding-bottom: 4.5rem;
+      }
+      .drawer-panel-responsive {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-height: 90vh;
+        border-top-left-radius: 1.5rem;
+        border-top-right-radius: 1.5rem;
+        transform: translateY(100%);
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+      }
     }
   </style>
 </head>
@@ -562,6 +579,31 @@
         </button>
       </form>
     </aside>
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  KIZUNA MOBILE BOTTOM DOCK (Mobile Bar Navigation)     -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div id="mobile-dock" class="md:hidden fixed bottom-3 left-3 right-3 z-[45] bg-slate-900/90 text-white backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-1.5 flex items-center justify-around">
+    <a href="#catalogo" class="flex flex-col items-center justify-center gap-0.5 text-xs text-slate-300 hover:text-primary transition-colors py-1 px-3">
+      <span class="material-symbols-outlined text-xl">chair</span>
+      <span class="text-[10px] font-bold">Catálogo</span>
+    </a>
+    <button id="mobile-dock-search" type="button" class="flex flex-col items-center justify-center gap-0.5 text-xs text-slate-300 hover:text-primary transition-colors py-1 px-3 cursor-pointer">
+      <span class="material-symbols-outlined text-xl">search</span>
+      <span class="text-[10px] font-bold">Buscar</span>
+    </button>
+    <button id="mobile-dock-contact" type="button" class="flex flex-col items-center justify-center gap-0.5 text-xs text-slate-300 hover:text-primary transition-colors py-1 px-3 cursor-pointer">
+      <span class="material-symbols-outlined text-xl">support_agent</span>
+      <span class="text-[10px] font-bold">Contato</span>
+    </button>
+    <button id="mobile-dock-cart" type="button" class="relative flex flex-col items-center justify-center gap-0.5 text-xs text-slate-300 hover:text-primary transition-colors py-1 px-3 cursor-pointer">
+      <span class="material-symbols-outlined text-xl">shopping_cart</span>
+      <span class="text-[10px] font-bold">Orçamento</span>
+      <span id="mobile-dock-badge" class="absolute -top-1 right-2 bg-primary text-white text-[9px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
+    </button>
+    <a id="mobile-dock-wa" href="https://wa.me/5519996146549" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center justify-center gap-0.5 text-xs text-green-400 hover:text-green-300 transition-colors py-1 px-3">
+      <span class="material-symbols-outlined text-xl">chat</span>
+      <span class="text-[10px] font-bold">WhatsApp</span>
+    </a>
   </div>
 
   <script>
@@ -860,13 +902,15 @@
 
     function updateCartUI() {
       const badge = document.getElementById('cart-badge');
+      const dockBadge = document.getElementById('mobile-dock-badge');
       const count = quoteCart.length;
 
       if (count > 0) {
-        badge.textContent = count;
-        badge.classList.remove('hidden');
+        if (badge) { badge.textContent = count; badge.classList.remove('hidden'); }
+        if (dockBadge) { dockBadge.textContent = count; dockBadge.classList.remove('hidden'); }
       } else {
-        badge.classList.add('hidden');
+        if (badge) badge.classList.add('hidden');
+        if (dockBadge) dockBadge.classList.add('hidden');
       }
 
       const list = document.getElementById('cart-items-list');
@@ -1215,6 +1259,16 @@
         if (e.target === e.currentTarget) closeCart();
       });
       document.getElementById('cart-send-wa').addEventListener('click', sendQuoteWa);
+
+      // Mobile Dock Navigation Events
+      document.getElementById('mobile-dock-cart')?.addEventListener('click', openCart);
+      document.getElementById('mobile-dock-contact')?.addEventListener('click', () => openContactDrawer());
+      document.getElementById('mobile-dock-search')?.addEventListener('click', () => {
+        const catalogoSec = document.getElementById('catalogo');
+        const searchInput = document.getElementById('search-input');
+        if (catalogoSec) catalogoSec.scrollIntoView({ behavior: 'smooth' });
+        if (searchInput) searchInput.focus();
+      });
 
       // Contact drawer events
       const headerContactBtn = document.getElementById('header-contact-link');
