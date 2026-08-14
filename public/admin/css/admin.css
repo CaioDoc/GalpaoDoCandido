@@ -1959,3 +1959,237 @@ body, p, span, div, button, input, textarea, select {
     max-height: 95vh !important;
   }
 }
+
+/* ==========================================================================
+   ADMIN MOBILE UI & TOUCH-FIRST OVERHAUL (Kizuna Mobile Admin)
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  html {
+    font-size: 15px !important;
+  }
+
+  body {
+    font-size: 1rem !important;
+    line-height: 1.5;
+  }
+
+  /* Touch-friendly inputs (prevents iOS auto-zoom & improves tap targets) */
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="password"],
+  input[type="url"],
+  input[type="date"],
+  select,
+  textarea {
+    font-size: 16px !important;
+    min-height: 46px;
+    padding: 0.75rem 1rem !important;
+    border-radius: var(--radius-md) !important;
+  }
+
+  /* Touch buttons */
+  .btn,
+  button[type="button"],
+  button[type="submit"] {
+    min-height: 44px;
+    font-size: 0.95rem !important;
+    padding: 0.65rem 1.1rem !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .page-title {
+    font-size: 1.6rem !important;
+  }
+
+  .page-subtitle {
+    font-size: 0.9rem !important;
+  }
+
+  .topbar {
+    padding: 0.75rem 1rem;
+    height: 64px;
+  }
+
+  .topbar-title {
+    font-size: 1.2rem !important;
+    font-weight: 700;
+  }
+
+  .menu-toggle {
+    width: 44px;
+    height: 44px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Sidebar Mobile Drawer */
+  .sidebar {
+    width: 280px !important;
+    max-width: 85vw;
+  }
+
+  .sidebar-link {
+    font-size: 1.05rem !important;
+    padding: 0.9rem 1.25rem !important;
+    min-height: 48px;
+  }
+
+  /* Filter Bars Scrollable */
+  #contact-subject-filters {
+    overflow-x: auto;
+    flex-wrap: nowrap !important;
+    padding-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+
+  .contact-filter-btn {
+    flex-shrink: 0;
+    font-size: 0.85rem !important;
+    padding: 0.5rem 0.9rem !important;
+  }
+
+  /* Mobile Responsive Table to Card View */
+  .desktop-table-wrapper {
+    display: none !important;
+  }
+
+  .admin-mobile-cards-container {
+    display: flex !important;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .admin-product-card {
+    background: var(--dark-3);
+    border: 1px solid var(--dark-4);
+    border-radius: var(--radius-lg);
+    padding: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+
+  .admin-product-card-header {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .admin-product-card-thumb {
+    width: 72px;
+    height: 72px;
+    border-radius: 10px;
+    object-fit: cover;
+    background: var(--dark-2);
+    border: 1px solid var(--dark-4);
+    flex-shrink: 0;
+  }
+
+  .admin-product-card-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .admin-product-card-title {
+    font-size: 1.1rem !important;
+    font-weight: 700;
+    color: var(--white-pure);
+    margin-bottom: 0.2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .admin-product-card-meta {
+    font-size: 0.85rem;
+    color: var(--gray-300);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .admin-product-card-price {
+    font-size: 1.2rem !important;
+    font-weight: 800;
+    color: var(--primary);
+  }
+
+  .admin-product-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--dark-4);
+  }
+
+  .admin-product-card-actions .btn {
+    flex: 1;
+    min-width: 100px;
+    justify-content: center;
+    font-size: 0.85rem !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+
+  /* Hero Banner Manager Cards Mobile */
+  .hero-banner-admin-card {
+    padding: 1.1rem !important;
+  }
+
+  .hero-banner-admin-card input,
+  .hero-banner-admin-card select {
+    font-size: 15px !important;
+  }
+}
+
+/* Mobile Bottom Sheet Modals */
+@media (max-width: 640px) {
+  .modal-backdrop,
+  .modal-overlay {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+
+  .modal-panel,
+  .modal-card {
+    max-width: 100% !important;
+    width: 100% !important;
+    border-radius: 24px 24px 0 0 !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    margin: 0 !important;
+    padding: 1.25rem !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+  }
+
+  .modal-header {
+    padding-bottom: 1rem !important;
+  }
+
+  .modal-title-text,
+  .modal-title {
+    font-size: 1.3rem !important;
+  }
+
+  .modal-close {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 1.2rem !important;
+  }
+}

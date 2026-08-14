@@ -136,63 +136,110 @@ function getFilteredProducts() {
 
 function renderTable() {
     const tbody = document.getElementById('products-tbody');
+    const mobileContainer = document.getElementById('products-mobile-cards');
     const filtered = getFilteredProducts();
 
+    const emptyMsg = products.length === 0 ? 'Nenhum produto cadastrado ainda. Adicione o primeiro!' : 'Nenhum produto encontrado com esses filtros.';
+
     if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="table-empty">
-      ${products.length === 0 ? 'Nenhum produto cadastrado ainda. Adicione o primeiro!' : 'Nenhum produto encontrado com esses filtros.'}
-    </td></tr>`;
+        if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="table-empty">${emptyMsg}</td></tr>`;
+        if (mobileContainer) mobileContainer.innerHTML = `<div class="table-empty" style="padding: 2rem; text-align: center; color: var(--gray-300);">${emptyMsg}</div>`;
         return;
     }
 
-    tbody.innerHTML = filtered.map(p => {
-        const validImages = (p.images || []).filter(i => i && !i.includes('demo-'));
-        const firstImg = validImages[0];
-        const imgHtml = firstImg
-            ? `<img class="table-img" src="${firstImg}" alt="${p.title}" loading="lazy">`
-            : `<div class="table-img-placeholder"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>`;
+    if (tbody) {
+        tbody.innerHTML = filtered.map(p => {
+            const validImages = (p.images || []).filter(i => i && !i.includes('demo-'));
+            const firstImg = validImages[0];
+            const imgHtml = firstImg
+                ? `<img class="table-img" src="${firstImg}" alt="${p.title}" loading="lazy">`
+                : `<div class="table-img-placeholder"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>`;
 
-        return `
-      <tr data-id="${p.id}">
-        <td>${imgHtml}</td>
-        <td>
-          <div class="table-title">${p.title}</div>
-          ${p.subtitle ? `<div class="table-subtitle">${p.subtitle}</div>` : ''}
-        </td>
-        <td><span class="badge badge-category">${p.category}</span></td>
-        <td class="table-price">${formatPrice(p.price)}</td>
-        <td>${p.featured ? '<span class="badge badge-featured">★ Destaque</span>' : '<span style="color:var(--gray-400);font-size:0.8rem;">—</span>'}</td>
-        <td>
-          <div class="table-actions">
-            <button class="btn btn-icon btn-sm promote-btn" data-id="${p.id}" title="Promover via WhatsApp" aria-label="Promover ${p.title}">
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-              </svg>
-            </button>
-            <button class="btn btn-icon btn-sm edit-btn" data-id="${p.id}" title="Editar" aria-label="Editar ${p.title}">
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-            </button>
-            <button class="btn btn-danger btn-sm delete-btn" data-id="${p.id}" data-title="${p.title}" title="Excluir" aria-label="Excluir ${p.title}">
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-            </button>
-          </div>
-        </td>
-      </tr>`;
-    }).join('');
+            return `
+          <tr data-id="${p.id}">
+            <td>${imgHtml}</td>
+            <td>
+              <div class="table-title">${p.title}</div>
+              ${p.subtitle ? `<div class="table-subtitle">${p.subtitle}</div>` : ''}
+            </td>
+            <td><span class="badge badge-category">${p.category}</span></td>
+            <td class="table-price">${formatPrice(p.price)}</td>
+            <td>${p.featured ? '<span class="badge badge-featured">★ Destaque</span>' : '<span style="color:var(--gray-400);font-size:0.8rem;">—</span>'}</td>
+            <td>
+              <div class="table-actions">
+                <button class="btn btn-icon btn-sm promote-btn" data-id="${p.id}" title="Promover via WhatsApp" aria-label="Promover ${p.title}">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                  </svg>
+                </button>
+                <button class="btn btn-icon btn-sm edit-btn" data-id="${p.id}" title="Editar" aria-label="Editar ${p.title}">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                </button>
+                <button class="btn btn-danger btn-sm delete-btn" data-id="${p.id}" data-title="${p.title}" title="Excluir" aria-label="Excluir ${p.title}">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>`;
+        }).join('');
 
-    // Promote buttons
-    tbody.querySelectorAll('.promote-btn').forEach(btn => {
-        btn.addEventListener('click', () => openPromoteModal(btn.dataset.id));
-    });
+        tbody.querySelectorAll('.promote-btn').forEach(btn => {
+            btn.addEventListener('click', () => openPromoteModal(btn.dataset.id));
+        });
+        tbody.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', () => openEditModal(btn.dataset.id));
+        });
+        tbody.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', () => confirmDelete(btn.dataset.id, btn.dataset.title));
+        });
+    }
 
-    // Edit buttons
-    tbody.querySelectorAll('.edit-btn').forEach(btn => {
-        btn.addEventListener('click', () => openEditModal(btn.dataset.id));
-    });
+    if (mobileContainer) {
+        mobileContainer.innerHTML = filtered.map(p => {
+            const validImages = (p.images || []).filter(i => i && !i.includes('demo-'));
+            const firstImg = validImages[0];
+            const imgHtml = firstImg
+                ? `<img class="admin-product-card-thumb" src="${firstImg}" alt="${p.title}">`
+                : `<div class="admin-product-card-thumb flex items-center justify-center text-gray-400">🛋️</div>`;
 
-    // Delete buttons
-    tbody.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
+            return `
+            <div class="admin-product-card" data-id="${p.id}">
+                <div class="admin-product-card-header">
+                    ${imgHtml}
+                    <div class="admin-product-card-info">
+                        <div class="admin-product-card-title">${p.title}</div>
+                        <div class="admin-product-card-meta">
+                            <span class="badge badge-category">${p.category}</span>
+                            ${p.featured ? '<span class="badge badge-featured">★ Destaque</span>' : ''}
+                        </div>
+                        <div class="admin-product-card-price" style="margin-top:0.3rem;">${formatPrice(p.price)}</div>
+                    </div>
+                </div>
+                <div class="admin-product-card-actions">
+                    <button class="btn btn-secondary btn-sm promote-btn" data-id="${p.id}">
+                        📣 Promover
+                    </button>
+                    <button class="btn btn-secondary btn-sm edit-btn" data-id="${p.id}">
+                        ✏️ Editar
+                    </button>
+                    <button class="btn btn-danger btn-sm delete-btn" data-id="${p.id}" data-title="${p.title}">
+                        🗑️ Excluir
+                    </button>
+                </div>
+            </div>`;
+        }).join('');
+
+        mobileContainer.querySelectorAll('.promote-btn').forEach(btn => {
+            btn.addEventListener('click', () => openPromoteModal(btn.dataset.id));
+        });
+        mobileContainer.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', () => openEditModal(btn.dataset.id));
+        });
+        mobileContainer.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', () => confirmDelete(btn.dataset.id, btn.dataset.title));
+        });
+    }
+}
             deleteTargetId = btn.dataset.id;
             document.getElementById('confirm-msg').textContent = `"${btn.dataset.title}" será removido permanentemente.`;
             document.getElementById('confirm-dialog').classList.add('open');
