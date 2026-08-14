@@ -134,6 +134,14 @@ function getFilteredProducts() {
     });
 }
 
+function confirmDeleteProduct(id, title) {
+    deleteTargetId = id;
+    const msgEl = document.getElementById('confirm-msg');
+    const dialogEl = document.getElementById('confirm-dialog');
+    if (msgEl) msgEl.textContent = `"${title}" será removido permanentemente.`;
+    if (dialogEl) dialogEl.classList.add('open');
+}
+
 function renderTable() {
     const tbody = document.getElementById('products-tbody');
     const mobileContainer = document.getElementById('products-mobile-cards');
@@ -190,7 +198,7 @@ function renderTable() {
             btn.addEventListener('click', () => openEditModal(btn.dataset.id));
         });
         tbody.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', () => confirmDelete(btn.dataset.id, btn.dataset.title));
+            btn.addEventListener('click', () => confirmDeleteProduct(btn.dataset.id, btn.dataset.title));
         });
     }
 
@@ -236,15 +244,9 @@ function renderTable() {
             btn.addEventListener('click', () => openEditModal(btn.dataset.id));
         });
         mobileContainer.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', () => confirmDelete(btn.dataset.id, btn.dataset.title));
+            btn.addEventListener('click', () => confirmDeleteProduct(btn.dataset.id, btn.dataset.title));
         });
     }
-}
-            deleteTargetId = btn.dataset.id;
-            document.getElementById('confirm-msg').textContent = `"${btn.dataset.title}" será removido permanentemente.`;
-            document.getElementById('confirm-dialog').classList.add('open');
-        });
-    });
 }
 
 function populateCategoryFilter() {
