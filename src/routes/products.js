@@ -1,6 +1,4 @@
-const express = require('express');
-const { v4: uuidv4 } = require('uuid');
-const { getDb } = require('../db');
+const { getDb, triggerAutoBackup } = require('../db');
 const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
@@ -51,6 +49,7 @@ router.put('/reorder', requireAuth, (req, res) => {
 
     try {
         reorderTx(items);
+        triggerAutoBackup();
         res.json({ success: true, message: 'Ordem de produtos atualizada.' });
     } catch (err) {
         console.error('Erro ao reordenar produtos:', err);
@@ -96,6 +95,7 @@ router.post('/', requireAuth, (req, res) => {
     );
 
     const product = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
+    triggerAutoBackup();
     res.status(201).json({ ...product, images: JSON.parse(product.images) });
 });
 
@@ -124,6 +124,7 @@ router.put('/:id', requireAuth, (req, res) => {
     );
 
     const updated = db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id);
+    triggerAutoBackup();
     res.json({ ...updated, images: JSON.parse(updated.images) });
 });
 
@@ -134,6 +135,7 @@ router.delete('/:id', requireAuth, (req, res) => {
     if (!existing) return res.status(404).json({ error: 'Produto não encontrado.' });
 
     db.prepare('DELETE FROM products WHERE id = ?').run(req.params.id);
+    triggerAutoBackup();
     res.json({ success: true });
 });
 

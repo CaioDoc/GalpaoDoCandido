@@ -81,4 +81,32 @@ router.put('/banner', requireAuth, (req, res) => {
     }
 });
 
+// GET /api/settings/backup/export — download full database JSON backup (admin only)
+router.get('/backup/export', requireAuth, (req, res) => {
+    const { exportDatabaseJSON } = require('../db');
+    try {
+        const backupData = exportDatabaseJSON();
+        const filename = `backup-galpao-${new Date().toISOString().slice(0, 10)}.json`;
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.json(backupData);
+    } catch (err) {
+        console.error('Erro ao exportar backup:', err);
+        res.status(500).json({ error: 'Erro ao gerar arquivo de backup.' });
+    }
+});
+
+// POST /api/settings/backup/import — restore database from JSON backup (admin only)
+router.post('/backup/import', requireAuth, (req, res) => {
+    const { restoreFromJSON } = require('../db');
+    try {
+        const backupData = req.body;
+        restoreFromJSON(backupData);
+        res.json({ success: true, message: 'Banco de dados restaurado com sucesso!' });
+    } catch (err) {
+        console.error('Erro ao importar backup:', err);
+        res.status(400).json({ error: err.message || 'Erro ao importar backup.' });
+    }
+});
+
 module.exports = router;

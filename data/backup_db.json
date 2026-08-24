@@ -1,0 +1,144 @@
+{
+  "version": 1,
+  "exported_at": "2026-08-24T17:37:24.669Z",
+  "products": [
+    {
+      "id": "c465709c-431e-4832-a624-50814a3a8844",
+      "title": "Poltrona Eames Original",
+      "subtitle": "Design Clássico Americano",
+      "description": "Icônica poltrona Eames em couro legítimo caramelo com base de alumínio polido. Peça original dos anos 70, restaurada por nossos especialistas. Um exemplar raro para colecionadores.",
+      "price": 8500,
+      "category": "Poltronas",
+      "images": [
+        "/uploads/demo-eames.jpg"
+      ],
+      "featured": 1,
+      "display_order": 0,
+      "created_at": "2026-08-24 17:37:24"
+    },
+    {
+      "id": "fe25560e-6b69-4700-aed1-20a221ec2670",
+      "title": "Mesa de Jantar Art Déco",
+      "subtitle": "Mogno Maciço com Detalhes em Bronze",
+      "description": "Mesa de jantar em mogno maciço com incrustações em bronze dourado. Estilo Art Déco dos anos 1930, peça única em excelente estado de conservação. Acompanha 6 cadeiras originais.",
+      "price": 22000,
+      "category": "Mesas",
+      "images": [
+        "/uploads/demo-mesa.jpg"
+      ],
+      "featured": 1,
+      "display_order": 0,
+      "created_at": "2026-08-24 17:37:24"
+    },
+    {
+      "id": "e8ca63a1-5677-4fe7-b290-1e8be9806973",
+      "title": "Cadeira Barcelona",
+      "subtitle": "Réplica Premium Mies van der Rohe",
+      "description": "Réplica premium da lendária cadeira Barcelona de Mies van der Rohe. Estrutura em aço inox polido, estofamento em couro genuíno branco. Ícone do modernismo.",
+      "price": 4200,
+      "category": "Cadeiras",
+      "images": [
+        "/uploads/demo-barcelona.jpg"
+      ],
+      "featured": 1,
+      "display_order": 0,
+      "created_at": "2026-08-24 17:37:24"
+    },
+    {
+      "id": "37f85385-f967-4a8b-8ee1-7eb917bca207",
+      "title": "Aparador Vintage Escandinavo",
+      "subtitle": "Teca Maciça — Anos 1960",
+      "description": "Aparador escandinavo em teca maciça com pés palito originais. Três gavetas e duas portas com fechamento suave. Peça marcante de meados do século XX.",
+      "price": 6800,
+      "category": "Armários",
+      "images": [
+        "/uploads/demo-aparador.jpg"
+      ],
+      "featured": 1,
+      "display_order": 0,
+      "created_at": "2026-08-24 17:37:24"
+    },
+    {
+      "id": "146a6d6d-da69-4a9c-92de-6cca94e2ed3c",
+      "title": "Luminária de Chão Arco",
+      "subtitle": "Alumínio e Mármore — Design Italiano",
+      "description": "Luminária de chão em arco com base de mármore branco e haste em alumínio cromado. Design italiano dos anos 70, funcional e decorativa. Caçamba em alumínio fosco.",
+      "price": 3100,
+      "category": "Iluminação",
+      "images": [
+        "/uploads/demo-luminaria.jpg"
+      ],
+      "featured": 0,
+      "display_order": 0,
+      "created_at": "2026-08-24 17:37:24"
+    },
+    {
+      "id": "1d8d05d1-590b-406c-89ef-01c73c737323",
+      "title": "Sofá Retrô 3 Lugares",
+      "subtitle": "Veludo Verde Floresta",
+      "description": "Sofá estilo retrô de 3 lugares, reestofado em veludo verde floresta de alta qualidade. Pés em madeira torneada encerada. Estrutura robusta revisada e reforçada.",
+      "price": 9500,
+      "category": "Sofás",
+      "images": [
+        "/uploads/demo-sofa.jpg"
+      ],
+      "featured": 0,
+      "display_order": 0,
+      "created_at": "2026-08-24 17:37:24"
+    }
+  ],
+  "categories": [
+    {
+      "id": 5,
+      "name": "Armários",
+      "created_at": "2026-08-24 17:37:24"
+    },
+    {
+      "id": 2,
+      "name": "Cadeiras",
+      "created_at": "2026-08-24 17:37:24"
+    },
+    {
+      "id": 7,
+      "name": "Decoração",
+      "created_at": "2026-08-24 17:37:24"
+    },
+    {
+      "id": 8,
+      "name": "Diversos",
+      "created_at": "2026-08-24 17:37:24"
+    },
+    {
+      "id": 6,
+      "name": "Iluminação",
+      "created_at": "2026-08-24 17:37:24"
+    },
+    {
+      "id": 3,
+      "name": "Mesas",
+      "created_at": "2026-08-24 17:37:24"
+    },
+    {
+      "id": 9,
+      "name": "Outros",
+      "created_at": "2026-08-24 17:37:24"
+    },
+    {
+      "id": 1,
+      "name": "Poltronas",
+      "created_at": "2026-08-24 17:37:24"
+    },
+    {
+      "id": 4,
+      "name": "Sofás",
+      "created_at": "2026-08-24 17:37:24"
+    }
+  ],
+  "settings": [
+    {
+      "key": "banner_url",
+      "value": "https://lh3.googleusercontent.com/aida-public/AB6AXuAvAAN1NYELrbPLEreymiDA3OOKNsrELf3jHiCj2XHPqEBke9mUS5zbtQdR55Sm0V7jLLsFvZigJVFmzp2zeStmiSOtW61yeJ9hZ8_Pb-F-JxXHteXRDU3BdUeY5Wxk0TBVlE5fKWtFJZddxRbZoQPySNwe6yBA9bEAeripeIMdxoPKn3MuKec65M58Uh-qproteVwhUBjmnGk2TQsklIc4k7IW6hcQyxwsAIRiC0fZw794BKH2NXoyiXTl9FKHcJkQWXURgJGWWsHM"
+    }
+  ],
+  "contacts": []
+}

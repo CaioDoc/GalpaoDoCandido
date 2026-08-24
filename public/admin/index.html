@@ -265,6 +265,29 @@
                         <!-- Rendered by JS -->
                     </div>
                 </div>
+
+                <!-- BACKUP & SAFETY CARD -->
+                <div class="settings-card" style="background:var(--dark-3); border:1px solid var(--dark-4); border-radius:var(--radius-md); padding:1.5rem; margin-bottom:1.5rem;">
+                    <div style="margin-bottom: 1.2rem; border-bottom: 1px solid var(--dark-4); padding-bottom: 1rem;">
+                        <h2 style="font-size:1.1rem; font-weight:600; font-family:var(--font-display); margin-bottom:0.25rem; color:var(--white-pure); display: flex; align-items:center; gap:0.5rem;">
+                            <span>🛡️</span> Central de Backup & Segurança Anti-Perda
+                        </h2>
+                        <p style="font-size:0.85rem; color:var(--gray-300); margin:0;">
+                            Faça download de cópias de segurança do catálogo completo ou restaure um backup salvo em seu computador a qualquer momento.
+                        </p>
+                    </div>
+
+                    <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center;">
+                        <button type="button" class="btn btn-secondary" id="btn-export-backup" style="background: rgba(39, 174, 96, 0.15); color: #2ecc71; border: 1px solid rgba(39, 174, 96, 0.3); font-weight: 600; padding: 0.65rem 1.25rem; display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <span>📥</span> Baixar Backup Completo (JSON)
+                        </button>
+
+                        <label class="btn btn-secondary" style="background: rgba(41, 128, 185, 0.15); color: #3498db; border: 1px solid rgba(41, 128, 185, 0.3); font-weight: 600; padding: 0.65rem 1.25rem; display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <span>📤</span> Restaurar Backup (JSON)
+                            <input type="file" id="backup-file-input" accept=".json" style="display: none;" />
+                        </label>
+                    </div>
+                </div>
             </main>
 
             <!-- ════ PAGE: CONTACT MESSAGES ════ -->

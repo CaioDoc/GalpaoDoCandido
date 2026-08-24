@@ -1,8 +1,18 @@
+const fs = require('fs');
 const Database = require('better-sqlite3');
 const bcrypt = require('bcryptjs');
 const path = require('path');
 
-const DB_PATH = path.join(__dirname, '..', 'galpao.db');
+// Determine persistent data directory
+const DATA_DIR = process.env.RAILWAY_VOLUME_MOUNT_PATH || process.env.DATA_DIR || path.join(__dirname, '..', 'data');
+if (!fs.existsSync(DATA_DIR)) {
+    try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch (e) {}
+}
+
+const DB_PATH = path.join(DATA_DIR, 'galpao.db');
+const BACKUP_JSON_PATH = path.join(DATA_DIR, 'backup_db.json');
+const ROOT_BACKUP_JSON = path.join(__dirname, '..', 'data', 'backup_db.json');
+
 let db;
 
 function getDb() {
@@ -12,6 +22,121 @@ function getDb() {
     }
     return db;
 }
+
+function exportDatabaseJSON() {
+    const database = getDb();
+    const products = database.prepare('SELECT * FROM products ORDER BY display_order ASC, created_at DESC').all().map(p => ({
+        ...p,
+        images: JSON.parse(p.images || '[]')
+    }));
+    const categories = database.prepare('SELECT * FROM categories ORDER BY name ASC').all();
+    const settings = database.prepare('SELECT * FROM settings').all();
+    const contacts = database.prepare('SELECT * FROM contacts ORDER BY created_at DESC').all();
+
+    return {
+        version: 1,
+        exported_at: new Date().toISOString(),
+        products,
+        categories,
+        settings,
+        contacts
+    };
+}
+
+function triggerAutoBackup() {
+    try {
+        const data = exportDatabaseJSON();
+        const jsonStr = JSON.stringify(data, null, 2);
+        fs.writeFileSync(BACKUP_JSON_PATH, jsonStr, 'utf8');
+        if (BACKUP_JSON_PATH !== ROOT_BACKUP_JSON) {
+            try {
+                const rootDir = path.dirname(ROOT_BACKUP_JSON);
+                if (!fs.existsSync(rootDir)) fs.mkdirSync(rootDir, { recursive: true });
+                fs.writeFileSync(ROOT_BACKUP_JSON, jsonStr, 'utf8');
+            } catch (e) {}
+        }
+    } catch (err) {
+        console.error('⚠️ Erro no auto-backup:', err);
+    }
+}
+
+function restoreFromJSON(backupData) {
+    if (!backupData || (!Array.isArray(backupData.products) && !Array.isArray(backupData.categories))) {
+        throw new Error('Formato de arquivo de backup inválido.');
+    }
+
+    const database = getDb();
+
+    const restoreTx = database.transaction(() => {
+        // Restore products if array present
+        if (Array.isArray(backupData.products) && backupData.products.length > 0) {
+            database.exec('DELETE FROM products');
+            const insertProduct = database.prepare(`
+                INSERT INTO products (id, title, subtitle, description, price, category, images, featured, display_order, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `);
+
+            backupData.products.forEach((p, idx) => {
+                insertProduct.run(
+                    p.id,
+                    p.title,
+                    p.subtitle || '',
+                    p.description || '',
+                    parseFloat(p.price) || 0,
+                    p.category || 'Outros',
+                    JSON.stringify(Array.isArray(p.images) ? p.images : []),
+                    p.featured ? 1 : 0,
+                    p.display_order !== undefined ? p.display_order : idx,
+                    p.created_at || new Date().toISOString()
+                );
+            });
+        }
+
+        // Restore categories if present
+        if (Array.isArray(backupData.categories) && backupData.categories.length > 0) {
+            database.exec('DELETE FROM categories');
+            const insertCat = database.prepare('INSERT OR IGNORE INTO categories (id, name, created_at) VALUES (?, ?, ?)');
+            backupData.categories.forEach(c => {
+                insertCat.run(c.id || null, c.name, c.created_at || new Date().toISOString());
+            });
+        }
+
+        // Restore settings if present
+        if (Array.isArray(backupData.settings) && backupData.settings.length > 0) {
+            database.exec('DELETE FROM settings');
+            const insertSetting = database.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)');
+            backupData.settings.forEach(s => {
+                insertSetting.run(s.key, typeof s.value === 'string' ? s.value : JSON.stringify(s.value));
+            });
+        }
+    });
+
+    restoreTx();
+    triggerAutoBackup();
+    return true;
+}
+
+function checkAndAutoRestore() {
+    const database = getDb();
+    const prodCount = database.prepare('SELECT COUNT(*) as cnt FROM products').get();
+
+    // If products table is empty, check if backup_db.json exists
+    if (prodCount.cnt === 0) {
+        let backupFile = fs.existsSync(BACKUP_JSON_PATH) ? BACKUP_JSON_PATH : (fs.existsSync(ROOT_BACKUP_JSON) ? ROOT_BACKUP_JSON : null);
+        if (backupFile) {
+            try {
+                const raw = fs.readFileSync(backupFile, 'utf8');
+                const parsed = JSON.parse(raw);
+                restoreFromJSON(parsed);
+                console.log(`🛡️  AUTO-RESTAURAÇÃO CONCLUÍDA: ${parsed.products ? parsed.products.length : 0} produtos restaurados do backup!`);
+            } catch (err) {
+                console.error('⚠️ Erro na auto-restauração:', err);
+            }
+        }
+    }
+}
+
+module.exports = { getDb, initDb, exportDatabaseJSON, restoreFromJSON, triggerAutoBackup };
 
 function initDb() {
     const database = getDb();
@@ -213,7 +338,8 @@ function seedDemoProducts(database) {
         insert.run(p.id, p.title, p.subtitle, p.description, p.price, p.category, p.images, p.featured);
     }
 
-    console.log('✅  Produtos demo inseridos');
+    checkAndAutoRestore();
+    triggerAutoBackup();
 }
 
-module.exports = { getDb, initDb };
+module.exports = { getDb, initDb, exportDatabaseJSON, restoreFromJSON, triggerAutoBackup };

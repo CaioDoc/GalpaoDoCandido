@@ -2175,6 +2175,58 @@ async function init() {
         });
     });
 
+    // Backup & Safety Listeners
+    const btnExportBackup = document.getElementById('btn-export-backup');
+    if (btnExportBackup) {
+        btnExportBackup.addEventListener('click', () => {
+            window.location.href = '/api/settings/backup/export';
+            showToast('Download do backup iniciado!');
+        });
+    }
+
+    const backupFileInput = document.getElementById('backup-file-input');
+    if (backupFileInput) {
+        backupFileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (!confirm(`Deseja restaurar o backup a partir do arquivo "${file.name}"? Isso substituirá os dados atuais pelo arquivo selecionado.`)) {
+                backupFileInput.value = '';
+                return;
+            }
+
+            try {
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    try {
+                        const jsonData = JSON.parse(event.target.result);
+                        const res = await fetch('/api/settings/backup/import', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(jsonData)
+                        });
+
+                        const data = await res.json();
+                        if (!res.ok) throw new Error(data.error || 'Erro ao importar backup.');
+
+                        showToast(data.message || 'Banco restaurado com sucesso!');
+                        await loadCategories();
+                        await loadProducts();
+                        await loadSettings();
+                    } catch (err) {
+                        showToast(err.message, 'error');
+                    } finally {
+                        backupFileInput.value = '';
+                    }
+                };
+                reader.readAsText(file);
+            } catch (err) {
+                showToast(err.message, 'error');
+                backupFileInput.value = '';
+            }
+        });
+    }
+
     // Load data
     await loadCategories();
     await loadProducts();
