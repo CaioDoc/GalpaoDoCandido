@@ -1,3 +1,5 @@
+const express = require('express');
+const { v4: uuidv4 } = require('uuid');
 const { getDb, triggerAutoBackup } = require('../db');
 const { requireAuth } = require('../middleware/auth');
 
