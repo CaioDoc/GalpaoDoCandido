@@ -255,12 +255,33 @@ function initDb() {
         console.log(`✅  Senha do Admin sincronizada: ${adminUser}`);
     }
 
-    // Seed demo products if empty
+    // Check auto-restore from backup FIRST before seeding demo products
+    let restoredFromBackup = false;
+    let backupFile = fs.existsSync(BACKUP_JSON_PATH) ? BACKUP_JSON_PATH : (fs.existsSync(ROOT_BACKUP_JSON) ? ROOT_BACKUP_JSON : null);
+    if (backupFile) {
+        try {
+            const raw = fs.readFileSync(backupFile, 'utf8');
+            const parsed = JSON.parse(raw);
+            if (parsed && Array.isArray(parsed.products) && parsed.products.length > 0) {
+                const currentCount = database.prepare('SELECT COUNT(*) as cnt FROM products').get();
+                if (currentCount.cnt === 0) {
+                    restoreFromJSON(parsed);
+                    restoredFromBackup = true;
+                    console.log(`🛡️  AUTO-RESTAURAÇÃO CONCLUÍDA: ${parsed.products.length} produtos restaurados do backup!`);
+                }
+            }
+        } catch (err) {
+            console.error('⚠️  Erro na auto-restauração:', err);
+        }
+    }
+
+    // Seed demo products ONLY if empty AND not restored from backup
     const count = database.prepare('SELECT COUNT(*) as cnt FROM products').get();
-    if (count.cnt === 0) {
+    if (count.cnt === 0 && !restoredFromBackup) {
         seedDemoProducts(database);
     }
 
+    triggerAutoBackup();
     console.log('✅  Banco de dados inicializado');
 }
 
@@ -338,8 +359,7 @@ function seedDemoProducts(database) {
         insert.run(p.id, p.title, p.subtitle, p.description, p.price, p.category, p.images, p.featured);
     }
 
-    checkAndAutoRestore();
-    triggerAutoBackup();
+    console.log('✅  Produtos demo inseridos');
 }
 
 module.exports = { getDb, initDb, exportDatabaseJSON, restoreFromJSON, triggerAutoBackup };
