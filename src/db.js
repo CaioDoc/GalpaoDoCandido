@@ -27,9 +27,16 @@ function initDb() {
       category TEXT NOT NULL DEFAULT 'Outros',
       images TEXT NOT NULL DEFAULT '[]',
       featured INTEGER NOT NULL DEFAULT 0,
+      display_order INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
   `);
+
+    try {
+        database.exec(`ALTER TABLE products ADD COLUMN display_order INTEGER NOT NULL DEFAULT 0;`);
+    } catch {
+        // Column already exists
+    }
 
     // Admin table
     database.exec(`

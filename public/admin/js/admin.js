@@ -142,6 +142,105 @@ function confirmDeleteProduct(id, title) {
     if (dialogEl) dialogEl.classList.add('open');
 }
 
+let draggedProductId = null;
+
+function setupTableDragAndDrop() {
+    const tbody = document.getElementById('products-tbody');
+    const mobileContainer = document.getElementById('products-mobile-cards');
+
+    // Desktop Table Dragging
+    if (tbody) {
+        tbody.querySelectorAll('tr[data-id]').forEach(row => {
+            row.setAttribute('draggable', 'true');
+
+            row.addEventListener('dragstart', (e) => {
+                draggedProductId = row.dataset.id;
+                e.dataTransfer.effectAllowed = 'move';
+                row.style.opacity = '0.4';
+            });
+
+            row.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                row.style.background = 'var(--dark-4)';
+            });
+
+            row.addEventListener('dragleave', () => {
+                row.style.background = '';
+            });
+
+            row.addEventListener('drop', async (e) => {
+                e.preventDefault();
+                row.style.background = '';
+                const targetId = row.dataset.id;
+                if (draggedProductId && draggedProductId !== targetId) {
+                    reorderProductsArray(draggedProductId, targetId);
+                }
+            });
+
+            row.addEventListener('dragend', () => {
+                row.style.opacity = '1';
+            });
+        });
+    }
+
+    // Mobile Cards Dragging
+    if (mobileContainer) {
+        mobileContainer.querySelectorAll('.admin-product-card[data-id]').forEach(card => {
+            card.setAttribute('draggable', 'true');
+
+            card.addEventListener('dragstart', (e) => {
+                draggedProductId = card.dataset.id;
+                e.dataTransfer.effectAllowed = 'move';
+                card.style.opacity = '0.4';
+            });
+
+            card.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+            });
+
+            card.addEventListener('drop', async (e) => {
+                e.preventDefault();
+                const targetId = card.dataset.id;
+                if (draggedProductId && draggedProductId !== targetId) {
+                    reorderProductsArray(draggedProductId, targetId);
+                }
+            });
+
+            card.addEventListener('dragend', () => {
+                card.style.opacity = '1';
+            });
+        });
+    }
+}
+
+async function reorderProductsArray(fromId, toId) {
+    const fromIndex = products.findIndex(p => p.id === fromId);
+    const toIndex = products.findIndex(p => p.id === toId);
+    if (fromIndex < 0 || toIndex < 0) return;
+
+    const [moved] = products.splice(fromIndex, 1);
+    products.splice(toIndex, 0, moved);
+
+    renderTable();
+
+    // Persist new order to backend
+    const items = products.map((p, idx) => ({ id: p.id, display_order: idx }));
+    try {
+        const res = await fetch('/api/products/reorder', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items })
+        });
+        if (res.ok) {
+            showToast('Ordem dos produtos atualizada!');
+        }
+    } catch (err) {
+        console.error('Erro ao reordenar produtos:', err);
+    }
+}
+
 function renderTable() {
     const tbody = document.getElementById('products-tbody');
     const mobileContainer = document.getElementById('products-mobile-cards');
@@ -150,7 +249,7 @@ function renderTable() {
     const emptyMsg = products.length === 0 ? 'Nenhum produto cadastrado ainda. Adicione o primeiro!' : 'Nenhum produto encontrado com esses filtros.';
 
     if (filtered.length === 0) {
-        if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="table-empty">${emptyMsg}</td></tr>`;
+        if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="table-empty">${emptyMsg}</td></tr>`;
         if (mobileContainer) mobileContainer.innerHTML = `<div class="table-empty" style="padding: 2rem; text-align: center; color: var(--gray-300);">${emptyMsg}</div>`;
         return;
     }
@@ -165,6 +264,7 @@ function renderTable() {
 
             return `
           <tr data-id="${p.id}">
+            <td class="drag-handle" style="cursor: grab; text-align: center; font-size: 1.2rem; color: var(--gray-400);" title="Segure e arraste para reordenar">≡</td>
             <td>${imgHtml}</td>
             <td>
               <div class="table-title">${p.title}</div>
@@ -213,6 +313,7 @@ function renderTable() {
             return `
             <div class="admin-product-card" data-id="${p.id}">
                 <div class="admin-product-card-header">
+                    <span class="drag-handle text-lg text-slate-400 cursor-grab px-1" title="Arraste para reordenar">≡</span>
                     ${imgHtml}
                     <div class="admin-product-card-info">
                         <div class="admin-product-card-title">${p.title}</div>
@@ -247,6 +348,8 @@ function renderTable() {
             btn.addEventListener('click', () => confirmDeleteProduct(btn.dataset.id, btn.dataset.title));
         });
     }
+
+    setupTableDragAndDrop();
 }
 
 function populateCategoryFilter() {
@@ -1522,17 +1625,51 @@ async function handleGeneralPromoteSubmit(e) {
 // ── Image Upload ───────────────────────────────────────
 function renderPreviews() {
     const container = document.getElementById('upload-previews');
+    if (!container) return;
+
     container.innerHTML = pendingImages.map((url, i) => `
-    <div class="preview-item" data-index="${i}">
+    <div class="preview-item" draggable="true" data-index="${i}" style="position: relative; cursor: grab;">
+      <span style="position: absolute; top: 4px; left: 4px; background: rgba(0,0,0,0.75); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; z-index: 5; pointer-events: none;">
+        ${i === 0 ? '★ Capa' : '≡ ' + (i + 1)}
+      </span>
       <img src="${url}" alt="Prévia ${i + 1}" />
       <button type="button" class="preview-remove" data-index="${i}" aria-label="Remover foto">✕</button>
     </div>`
     ).join('');
 
     container.querySelectorAll('.preview-remove').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
             pendingImages.splice(parseInt(btn.dataset.index), 1);
             renderPreviews();
+        });
+    });
+
+    let photoDragSrcIndex = null;
+    container.querySelectorAll('.preview-item').forEach(item => {
+        item.addEventListener('dragstart', (e) => {
+            photoDragSrcIndex = parseInt(item.dataset.index);
+            e.dataTransfer.effectAllowed = 'move';
+            item.style.opacity = '0.4';
+        });
+
+        item.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        });
+
+        item.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const dropIndex = parseInt(item.dataset.index);
+            if (photoDragSrcIndex !== null && photoDragSrcIndex !== dropIndex) {
+                const movedPhoto = pendingImages.splice(photoDragSrcIndex, 1)[0];
+                pendingImages.splice(dropIndex, 0, movedPhoto);
+                renderPreviews();
+            }
+        });
+
+        item.addEventListener('dragend', () => {
+            item.style.opacity = '1';
         });
     });
 }

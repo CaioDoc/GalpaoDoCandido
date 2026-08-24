@@ -135,9 +135,9 @@
           </a>
           <!-- Desktop Nav -->
           <nav class="hidden md:flex items-center gap-8">
-            <a class="text-sm font-semibold hover:text-primary transition-colors" href="#catalogo">Catálogo</a>
-            <a class="text-sm font-semibold hover:text-primary transition-colors" href="#sobre">Sobre</a>
-            <a id="header-contact-link" class="text-sm font-semibold hover:text-primary transition-colors cursor-pointer" href="#contato">Contato</a>
+            <a data-i18n="nav_catalog" class="text-sm font-semibold hover:text-primary transition-colors" href="#catalogo">Catálogo</a>
+            <a data-i18n="nav_about" class="text-sm font-semibold hover:text-primary transition-colors" href="#sobre">Sobre</a>
+            <a data-i18n="nav_contact" id="header-contact-link" class="text-sm font-semibold hover:text-primary transition-colors cursor-pointer" href="#contato">Contato</a>
             <button id="app-drawer-btn"
               class="text-sm font-semibold hover:text-primary transition-colors flex items-center gap-1.5">
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24"
@@ -145,7 +145,7 @@
                 <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
                 <line x1="12" y1="18" x2="12" y2="18" stroke-linecap="round" />
               </svg>
-              App
+              <span data-i18n="nav_app">App</span>
             </button>
           </nav>
           <!-- Actions -->
@@ -154,7 +154,7 @@
             <div class="hidden sm:flex relative">
               <span
                 class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
-              <input id="search-input"
+              <input id="search-input" data-i18n-placeholder="search_placeholder"
                 class="bg-slate-100 border-none rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/50 w-48 lg:w-64 transition-all"
                 placeholder="Buscar móveis..." type="text" />
             </div>
@@ -165,6 +165,29 @@
               <span id="cart-badge"
                 class="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center hidden">0</span>
             </button>
+
+            <!-- Language Selector Dropdown -->
+            <div class="relative inline-block text-left" id="lang-selector-wrap">
+              <button id="lang-dropdown-btn" type="button" aria-expanded="false" aria-haspopup="true" class="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border border-slate-200 cursor-pointer">
+                <span id="lang-flag-current">🇧🇷</span>
+                <span id="lang-code-current" class="uppercase">PT</span>
+                <span class="material-symbols-outlined text-xs text-slate-500">expand_more</span>
+              </button>
+              <div id="lang-dropdown-menu" class="hidden absolute right-0 mt-2 w-36 bg-white border border-slate-200 rounded-xl shadow-xl z-50 py-1 font-semibold text-xs transition-all">
+                <button type="button" data-lang="pt" class="lang-option w-full text-left px-3 py-2 hover:bg-slate-50 flex items-center gap-2 text-slate-700 cursor-pointer">
+                  <span>🇧🇷</span> <span>Português</span>
+                </button>
+                <button type="button" data-lang="en" class="lang-option w-full text-left px-3 py-2 hover:bg-slate-50 flex items-center gap-2 text-slate-700 cursor-pointer">
+                  <span>🇺🇸</span> <span>English</span>
+                </button>
+                <button type="button" data-lang="fr" class="lang-option w-full text-left px-3 py-2 hover:bg-slate-50 flex items-center gap-2 text-slate-700 cursor-pointer">
+                  <span>🇫🇷</span> <span>Français</span>
+                </button>
+                <button type="button" data-lang="de" class="lang-option w-full text-left px-3 py-2 hover:bg-slate-50 flex items-center gap-2 text-slate-700 cursor-pointer">
+                  <span>🇩🇪</span> <span>Deutsch</span>
+                </button>
+              </div>
+            </div>
             <!-- WhatsApp CTA -->
             <a id="header-wa" href="#" target="_blank" rel="noopener noreferrer"
               class="hidden sm:flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">
@@ -612,6 +635,175 @@
     // ── Config ──────────────────────────────────────────
     const WA_NUMBER = '5519996146549';
     const PAGE_SIZE = 12;
+
+    // ── i18n Translations ─────────────────────────────
+    const TRANSLATIONS = {
+      pt: {
+        nav_catalog: 'Catálogo',
+        nav_about: 'Sobre',
+        nav_contact: 'Contato',
+        nav_app: 'App',
+        search_placeholder: 'Buscar móveis...',
+        quote_btn: 'Orçamento',
+        hero_tag: 'Móveis de Design & Antiguidades',
+        hero_title: 'Coleção Exclusiva para seu Espaço',
+        hero_subtitle: 'Peças únicas restauradas, antiguidades selecionadas e móveis autorais com história.',
+        hero_btn: 'Explorar Catálogo',
+        cat_all: 'Todas as Peças',
+        cat_title: 'Catálogo de Peças',
+        cat_sub: 'Encontre a peça perfeita com história para seu projeto de interiores.',
+        load_more: 'Carregar mais produtos',
+        contact_drawer_title: 'Fale Conosco',
+        contact_name: 'Nome Completo *',
+        contact_email: 'Seu E-mail *',
+        contact_subject: 'Assunto *',
+        contact_sub_buy: 'Compra (Quero comprar peças)',
+        contact_sub_sell: 'Venda (Quero vender antiguidades)',
+        contact_sub_questions: 'Dúvidas e Outros',
+        contact_message: 'Mensagem *',
+        contact_image: 'Anexar Foto (Opcional)',
+        contact_submit: 'Enviar Mensagem',
+        cart_title: 'Seu Orçamento',
+        cart_empty: 'Seu orçamento está vazio. Adicione peças do catálogo para cotar!',
+        cart_send: 'Solicitar Orçamento via WhatsApp',
+        footer_rights: '© Galpão do Cândido. Todos os direitos reservados.',
+        footer_privacy: 'Políticas de Privacidade',
+        modal_add_cart: 'Adicionar ao Orçamento',
+        modal_in_cart: 'Já está no Orçamento',
+        modal_desc: 'Descrição da Peça',
+        modal_specs: 'Especificações'
+      },
+      en: {
+        nav_catalog: 'Catalog',
+        nav_about: 'About Us',
+        nav_contact: 'Contact',
+        nav_app: 'App',
+        search_placeholder: 'Search furniture...',
+        quote_btn: 'Quote List',
+        hero_tag: 'Design Furniture & Antiques',
+        hero_title: 'Exclusive Collection for Your Space',
+        hero_subtitle: 'Restored unique pieces, curated antiques, and designer furniture with history.',
+        hero_btn: 'Explore Catalog',
+        cat_all: 'All Items',
+        cat_title: 'Furniture Catalog',
+        cat_sub: 'Find the perfect piece with history for your interior design project.',
+        load_more: 'Load more items',
+        contact_drawer_title: 'Contact Us',
+        contact_name: 'Full Name *',
+        contact_email: 'Your Email *',
+        contact_subject: 'Subject *',
+        contact_sub_buy: 'Purchase (Buying pieces)',
+        contact_sub_sell: 'Selling (Sell antiques)',
+        contact_sub_questions: 'Questions & Support',
+        contact_message: 'Message *',
+        contact_image: 'Attach Photo (Optional)',
+        contact_submit: 'Send Message',
+        cart_title: 'Your Quote Cart',
+        cart_empty: 'Your quote list is empty. Add pieces from the catalog to request a quote!',
+        cart_send: 'Request Quote via WhatsApp',
+        footer_rights: '© Galpão do Cândido. All rights reserved.',
+        footer_privacy: 'Privacy Policy',
+        modal_add_cart: 'Add to Quote Cart',
+        modal_in_cart: 'Already in Quote Cart',
+        modal_desc: 'Piece Description',
+        modal_specs: 'Specifications'
+      },
+      fr: {
+        nav_catalog: 'Catalogue',
+        nav_about: 'À propos',
+        nav_contact: 'Contact',
+        nav_app: 'Application',
+        search_placeholder: 'Rechercher des meubles...',
+        quote_btn: 'Devis',
+        hero_tag: 'Meubles de Design & Antiquités',
+        hero_title: 'Collection Exclusive pour Votre Espace',
+        hero_subtitle: 'Pièces uniques restaurées, antiquités sélectionnées et meubles de créateurs avec histoire.',
+        hero_btn: 'Explorer le Catalogue',
+        cat_all: 'Toutes les Pièces',
+        cat_title: 'Catalogue de Meubles',
+        cat_sub: 'Trouvez la pièce parfaite avec une histoire pour votre projet d\'intérieur.',
+        load_more: 'Charger plus d\'articles',
+        contact_drawer_title: 'Contactez-nous',
+        contact_name: 'Nom Complet *',
+        contact_email: 'Votre Email *',
+        contact_subject: 'Sujet *',
+        contact_sub_buy: 'Achat (Acheter des pièces)',
+        contact_sub_sell: 'Vente (Vendre des antiquités)',
+        contact_sub_questions: 'Questions & Support',
+        contact_message: 'Message *',
+        contact_image: 'Joindre une Photo (Optionnel)',
+        contact_submit: 'Envoyer le Message',
+        cart_title: 'Votre Devis',
+        cart_empty: 'Votre panier de devis est vide. Ajoutez des pièces du catalogue pour demander un devis!',
+        cart_send: 'Demander un Devis via WhatsApp',
+        footer_rights: '© Galpão do Cândido. Tous droits réservés.',
+        footer_privacy: 'Politique de Confidentialité',
+        modal_add_cart: 'Ajouter au Devis',
+        modal_in_cart: 'Déjà dans le Devis',
+        modal_desc: 'Description de la Pièce',
+        modal_specs: 'Spécifications'
+      },
+      de: {
+        nav_catalog: 'Katalog',
+        nav_about: 'Über uns',
+        nav_contact: 'Kontakt',
+        nav_app: 'App',
+        search_placeholder: 'Möbel suchen...',
+        quote_btn: 'Angebot',
+        hero_tag: 'Designmöbel & Antiquitäten',
+        hero_title: 'Exklusive Kollektion für Ihren Raum',
+        hero_subtitle: 'Restaurierte Einzelstücke, ausgewählte Antiquitäten und Designermöbel mit Geschichte.',
+        hero_btn: 'Katalog Durchsuchen',
+        cat_all: 'Alle Artikel',
+        cat_title: 'Möbelkatalog',
+        cat_sub: 'Finden Sie das perfekte Stück mit Geschichte für Ihr Innenarchitekturprojekt.',
+        load_more: 'Mehr Artikel laden',
+        contact_drawer_title: 'Kontaktieren Sie uns',
+        contact_name: 'Vollständiger Name *',
+        contact_email: 'Ihre E-Mail *',
+        contact_subject: 'Betreff *',
+        contact_sub_buy: 'Kauf (Möbel kaufen)',
+        contact_sub_sell: 'Verkauf (Antiquitäten verkaufen)',
+        contact_sub_questions: 'Fragen & Unterstützung',
+        contact_message: 'Nachricht *',
+        contact_image: 'Foto anheften (Optional)',
+        contact_submit: 'Nachricht Senden',
+        cart_title: 'Ihr Angebot',
+        cart_empty: 'Ihr Angebotskorb ist leer. Fügen Sie Stücke aus dem Katalog hinzu!',
+        cart_send: 'Angebot per WhatsApp anfordern',
+        footer_rights: '© Galpão do Cândido. Alle Rechte vorbehalten.',
+        footer_privacy: 'Datenschutz-Bestimmungen',
+        modal_add_cart: 'Zum Angebot Hinzufügen',
+        modal_in_cart: 'Bereits im Angebot',
+        modal_desc: 'Beschreibung des Stücks',
+        modal_specs: 'Spezifikationen'
+      }
+    };
+
+    const LANG_FLAGS = { pt: '🇧🇷', en: '🇺🇸', fr: '🇫🇷', de: '🇩🇪' };
+    let currentLang = localStorage.getItem('galpao_lang') || 'pt';
+
+    function setLanguage(lang) {
+      if (!TRANSLATIONS[lang]) lang = 'pt';
+      currentLang = lang;
+      localStorage.setItem('galpao_lang', lang);
+
+      const flagEl = document.getElementById('lang-flag-current');
+      const codeEl = document.getElementById('lang-code-current');
+      if (flagEl) flagEl.textContent = LANG_FLAGS[lang];
+      if (codeEl) codeEl.textContent = lang.toUpperCase();
+
+      const dict = TRANSLATIONS[lang];
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) el.textContent = dict[key];
+      });
+
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (dict[key]) el.placeholder = dict[key];
+      });
+    }
 
     // ── State ───────────────────────────────────────────
     let allProducts = [];
@@ -1212,6 +1404,30 @@
       initWaLinks();
       loadCartFromStorage();
       updateCartUI();
+
+      // i18n Language Dropdown Events
+      setLanguage(currentLang);
+      const langBtn = document.getElementById('lang-dropdown-btn');
+      const langMenu = document.getElementById('lang-dropdown-menu');
+      if (langBtn && langMenu) {
+        langBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          langMenu.classList.toggle('hidden');
+        });
+
+        document.querySelectorAll('.lang-option').forEach(opt => {
+          opt.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const chosenLang = opt.getAttribute('data-lang');
+            setLanguage(chosenLang);
+            langMenu.classList.add('hidden');
+          });
+        });
+
+        document.addEventListener('click', () => {
+          langMenu.classList.add('hidden');
+        });
+      }
 
       // Load Hero Banners & Slider
       await loadHeroBanners();

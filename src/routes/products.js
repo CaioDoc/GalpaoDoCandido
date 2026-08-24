@@ -23,12 +23,39 @@ router.get('/', (req, res) => {
     if (conditions.length > 0) {
         query += ' WHERE ' + conditions.join(' AND ');
     }
-    query += ' ORDER BY created_at DESC';
+    query += ' ORDER BY display_order ASC, created_at DESC';
 
     const products = db.prepare(query).all(...params);
     // Parse images JSON
     const parsed = products.map(p => ({ ...p, images: JSON.parse(p.images || '[]') }));
     res.json(parsed);
+});
+
+// PUT /api/products/reorder — update product display order in batch (admin only)
+router.put('/reorder', requireAuth, (req, res) => {
+    const { items } = req.body;
+    if (!Array.isArray(items)) {
+        return res.status(400).json({ error: 'Lista de ordenação inválida.' });
+    }
+
+    const db = getDb();
+    const updateStmt = db.prepare('UPDATE products SET display_order = ? WHERE id = ?');
+
+    const reorderTx = db.transaction((orderItems) => {
+        for (let i = 0; i < orderItems.length; i++) {
+            const item = orderItems[i];
+            const id = typeof item === 'string' ? item : item.id;
+            updateStmt.run(i, id);
+        }
+    });
+
+    try {
+        reorderTx(items);
+        res.json({ success: true, message: 'Ordem de produtos atualizada.' });
+    } catch (err) {
+        console.error('Erro ao reordenar produtos:', err);
+        res.status(500).json({ error: 'Erro ao salvar nova ordem.' });
+    }
 });
 
 // GET /api/products/categories — get distinct category list
